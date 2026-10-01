@@ -1,0 +1,223 @@
+import { useLiveQuery } from 'dexie-react-hooks';
+import { Ban, Eye, ReceiptText, Undo2 } from 'lucide-react';
+import { useState } from 'react';
+import { ReceiptModal } from '../components/Receipt';
+import { Badge, Button, Card, Empty, Field, Input, Modal, PageHeader, Select, Stat, cx, td, th, useAction } from '../components/ui';
+import { ACCOUNT_IDS, db, type Sale } from '../lib/db';
+import { dayKey, fmtDateTime, qty, rangeIso, roundQty, rs } from '../lib/format';
+import { returnSaleItems, returnValue, voidSale } from '../lib/ops';
+import { useSession, useUser } from '../lib/session';
+
+export function SalesPage() {
+  const { can } = useSession();
+  const user = useUser();
+  const [from, setFrom] = useState(dayKey());
+  const [to, setTo] = useState(dayKey());
+  const [q, setQ] = useState('');
+  const [view, setView] = useState<Sale | null>(null);
+  const [returning, setReturning] = useState<Sale | null>(null);
+  const run = useAction();
+
+  const data = useLiveQuery(async () => {
+    const [start, end] = rangeIso(from, to);
+    let sales = await db.sales.where('date').between(start, end, true, true).reverse().sortBy('date');
+    // Cashiers see their own bills only.
+    if (user.role === 'cashier') sales = sales.filter((s) => s.userId === user.id);
+    const returns = await db.saleReturns.where('date').between(start, end, true, true).toArray();
+    const customers = new Map((await db.customers.toArray()).map((c) => [c.id, c.name]));
+    return { sales, returns, customers };
+  }, [from, to, user.id, user.role]);
+
+  const sales = (data?.sales ?? []).filter((s) => !q || s.no.toLowerCase().includes(q.toLowerCase()) || data?.customers.get(s.customerId ?? '')?.toLowerCase().includes(q.toLowerCase()));
+  const completed = sales.filter((s) => s.status === 'completed');
+  const total = completed.reduce((s, x) => s + x.total, 0);
+  const returnsTotal = (data?.returns ?? []).reduce((s, r) => s + r.amount, 0);
+
+  return (
+    <div>
+      <PageHeader title="Sales & Returns" subtitle="Find a bill, reprint it, return items or cancel it" />
+      <div className="mb-4 grid gap-3 sm:grid-cols-3">
+        <Stat label="Bills" value={completed.length} />
+        <Stat label="Sales" value={rs(total)} tone="green" />
+        <Stat label="Returns" value={rs(returnsTotal)} tone="red" />
+      </div>
+      <Card>
+        <div className="flex flex-wrap items-end gap-2 border-b border-slate-100 p-3">
+          <Field label="From">
+            <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+          </Field>
+          <Field label="To">
+            <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+          </Field>
+          <Field label="Search" className="min-w-[200px] flex-1">
+            <Input placeholder="Invoice no. or customer" value={q} onChange={(e) => setQ(e.target.value)} />
+          </Field>
+        </div>
+        {sales.length === 0 ? (
+          <Empty icon={<ReceiptText size={40} />} title="No sales in this period" />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className={th}>Invoice</th>
+                  <th className={th}>Time</th>
+                  <th className={th}>Customer</th>
+                  <th className={cx(th, 'text-right')}>Items</th>
+                  <th className={cx(th, 'text-right')}>Total</th>
+                  <th className={th}>Status</th>
+                  <th className={th} />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {sales.map((s) => (
+                  <tr key={s.id} className="hover:bg-slate-50">
+                    <td className={cx(td, 'font-medium')}>{s.no}</td>
+                    <td className={cx(td, 'text-slate-600')}>{fmtDateTime(s.date)}</td>
+                    <td className={td}>{s.customerId ? data?.customers.get(s.customerId) : <span className="text-slate-400">Walk-in</span>}</td>
+                    <td className={cx(td, 'text-right')}>{s.items.length}</td>
+                    <td className={cx(td, 'text-right font-medium tabular-nums')}>{rs(s.total)}</td>
+                    <td className={td}>
+                      {s.status === 'void' ? (
+                        <Badge tone="red">Cancelled</Badge>
+                      ) : s.returnedTotal > 0 ? (
+                        <Badge tone="amber">Returned {rs(s.returnedTotal)}</Badge>
+                      ) : s.credit > 0 ? (
+                        <Badge tone="blue">Udhaar {rs(s.credit)}</Badge>
+                      ) : (
+                        <Badge tone="green">Paid</Badge>
+                      )}
+                    </td>
+                    <td className={cx(td, 'whitespace-nowrap text-right')}>
+                      <Button size="sm" variant="ghost" onClick={() => setView(s)} title="View / print">
+                        <Eye size={15} />
+                      </Button>
+                      {s.status === 'completed' && (
+                        <Button size="sm" variant="ghost" onClick={() => setReturning(s)} title="Return items">
+                          <Undo2 size={15} />
+                        </Button>
+                      )}
+                      {s.status === 'completed' && s.returnedTotal === 0 && can('void') && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          title="Cancel sale"
+                          onClick={() => {
+                            const reason = prompt(`Cancel ${s.no}? Stock and money will be reversed. Reason:`);
+                            if (reason) run(() => voidSale(s.id, reason), 'Sale cancelled');
+                          }}
+                        >
+                          <Ban size={15} className="text-rose-600" />
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+      {view && <ReceiptModal sale={view} onClose={() => setView(null)} />}
+      {returning && <ReturnModal sale={returning} onClose={() => setReturning(null)} />}
+    </div>
+  );
+}
+
+function ReturnModal({ sale, onClose }: { sale: Sale; onClose: () => void }) {
+  const user = useUser();
+  const run = useAction();
+  const accounts = useLiveQuery(() => db.accounts.filter((a) => a.active).toArray(), []) ?? [];
+  const [qtys, setQtys] = useState<Record<string, string>>({});
+  const [refundTo, setRefundTo] = useState<'account' | 'khata'>(sale.customerId && sale.credit > 0 ? 'khata' : 'account');
+  const [accountId, setAccountId] = useState<string>(ACCOUNT_IDS.cash);
+  const [reason, setReason] = useState('');
+
+  const lines = sale.items.map((i) => ({ item: i, left: roundQty(i.qty - i.returnedQty), q: Number(qtys[i.productId] || 0) }));
+  const amount = lines.reduce((s, l) => s + (l.q > 0 ? returnValue(sale, l.item, Math.min(l.q, l.left)) : 0), 0);
+
+  return (
+    <Modal
+      wide
+      title={`Return items — ${sale.no}`}
+      onClose={onClose}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            disabled={amount <= 0}
+            onClick={() =>
+              run(async () => {
+                await returnSaleItems({
+                  saleId: sale.id,
+                  lines: lines.filter((l) => l.q > 0).map((l) => ({ productId: l.item.productId, qty: l.q })),
+                  refundTo,
+                  accountId,
+                  reason,
+                  userId: user.id,
+                });
+                onClose();
+              }, 'Return saved, stock added back')
+            }
+          >
+            Refund {rs(amount)}
+          </Button>
+        </>
+      }
+    >
+      <table className="mb-4 w-full">
+        <thead className="bg-slate-50">
+          <tr>
+            <th className={th}>Item</th>
+            <th className={cx(th, 'text-right')}>Sold</th>
+            <th className={cx(th, 'text-right')}>Can return</th>
+            <th className={cx(th, 'text-right')}>Return qty</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          {lines.map(({ item, left }) => (
+            <tr key={item.productId}>
+              <td className={td}>{item.name}</td>
+              <td className={cx(td, 'text-right')}>{qty(item.qty)}</td>
+              <td className={cx(td, 'text-right')}>{qty(left)}</td>
+              <td className={cx(td, 'text-right')}>
+                <input
+                  className="w-20 rounded border border-slate-300 px-2 py-1 text-right text-sm"
+                  inputMode="decimal"
+                  disabled={left <= 0}
+                  value={qtys[item.productId] ?? ''}
+                  onChange={(e) => setQtys((x) => ({ ...x, [item.productId]: e.target.value }))}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Field label="Refund to">
+          <Select value={refundTo} onChange={(e) => setRefundTo(e.target.value as 'account' | 'khata')}>
+            <option value="account">Give money back</option>
+            {sale.customerId && <option value="khata">Reduce customer udhaar</option>}
+          </Select>
+        </Field>
+        {refundTo === 'account' && (
+          <Field label="From">
+            <Select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
+              {accounts.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
+        <Field label="Reason">
+          <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. expired, damaged" />
+        </Field>
+      </div>
+    </Modal>
+  );
+}
