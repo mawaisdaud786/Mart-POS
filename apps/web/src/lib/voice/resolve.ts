@@ -22,6 +22,7 @@ import { parseCommand, tokenize, type ParsedItem, type VoiceCommand } from './pa
 /** Spelling-insensitive key: "Sooper" ≈ "super", "cheeni" ≈ "chini", Urdu script transliterated. */
 export function wordKey(word: string): string {
   let w = hasUrduScript(word) ? transliterateUrdu(word) : word.toLowerCase();
+  if (/^a{2,3}$/.test(w)) return w;
   w = w
     .replace(/oo/g, 'u')
     .replace(/ee/g, 'i')
@@ -95,7 +96,7 @@ function indexProduct(p: Product): IndexedProduct {
   const words: string[] = [];
   const numbers: number[] = [];
   const sizes: Size[] = [];
-  for (const source of [p.name, p.nameUr ?? '']) {
+  for (const source of [p.name, p.nameUr ?? '', ...(p.voiceKeywords ?? [])]) {
     const toks = tokenize(source);
     for (let i = 0; i < toks.length; i++) {
       const t = toks[i]!;
@@ -126,8 +127,8 @@ export interface ProductIndex {
   docFreq: Map<string, number>;
 }
 
-export function buildProductIndex(products: Product[]): ProductIndex {
-  const items = products.filter((p) => p.active).map(indexProduct);
+export function buildProductIndex(products: Product[], options: { includeInactive?: boolean } = {}): ProductIndex {
+  const items = products.filter((p) => options.includeInactive ? !p.active : p.active).map(indexProduct);
   const docFreq = new Map<string, number>();
   for (const it of items) for (const k of new Set(it.words.map(wordKey))) docFreq.set(k, (docFreq.get(k) ?? 0) + 1);
   return { items, docFreq };
@@ -143,6 +144,7 @@ function wordWeight(index: ProductIndex, word: string): number {
 interface Scored {
   ip: IndexedProduct;
   score: number;
+  exact: boolean;
 }
 
 /** Products whose name matches the spoken words, best first. */
@@ -154,6 +156,7 @@ export function matchProducts(index: ProductIndex, spoken: string[]): Scored[] {
   for (const ip of index.items) {
     let score = 0;
     let distinctive = false;
+    let exact = false;
     for (const w of words) {
       let best = 0;
       let bestWord = '';
@@ -168,13 +171,21 @@ export function matchProducts(index: ProductIndex, spoken: string[]): Scored[] {
         const brandBonus = wordKey(bestWord) === ip.brandKey ? 1.5 : 1;
         score += best * wordWeight(index, bestWord) * brandBonus;
         if (!isGeneric(w)) distinctive = true;
+        if (best >= 0.97) exact = true;
       }
     }
     // "Lux soap" must not match "Lifebuoy Soap" just because of the word "soap".
-    if (score > 0 && (distinctive || allGeneric)) scored.push({ ip, score });
+    if (score > 0 && (distinctive || allGeneric)) scored.push({ ip, score, exact });
   }
   scored.sort((a, b) => b.score - a.score || a.ip.product.name.localeCompare(b.ip.product.name));
   if (scored.length === 0) return [];
+  if (words.length === 1) {
+    const exactMatches = scored.filter((candidate) => candidate.exact);
+    if (exactMatches.length > 0) {
+      const topExact = exactMatches[0]!.score;
+      return exactMatches.filter((candidate) => candidate.score >= topExact * 0.8);
+    }
+  }
   const top = scored[0]!.score;
   return scored.filter((s) => s.score >= top * 0.8);
 }
@@ -193,6 +204,15 @@ export function productUnitKey(p: Product): UnitKey {
 export function convertQuantity(item: ParsedItem, ip: IndexedProduct): { qty: number; note?: string } | { ask: string; choices: number[] } {
   const p = ip.product;
   const pu = productUnitKey(p);
+  if (item.spendAmount !== null) {
+    if (p.salePrice <= 0) return { ask: `${p.name} ki sale price set nahi hai — quantity enter karein.`, choices: [1] };
+    const rawQty = (item.spendAmount * 100) / p.salePrice;
+    const availableQty = UNIT_DIMENSION[pu].dim === 'count'
+      ? Math.floor(rawQty)
+      : Math.floor(rawQty * 1000 + 1e-9) / 1000;
+    if (availableQty <= 0) return { ask: `Rs ${item.spendAmount} mein ${p.name} ka poora ${p.unit} nahi aa sakta. Kitna ${p.unit}?`, choices: [1] };
+    return { qty: availableQty, note: `Rs ${item.spendAmount} ≈ ${availableQty} ${p.unit}` };
+  }
   const u = item.unit;
   if (!u) return { qty: item.quantity };
   const pd = UNIT_DIMENSION[pu];
@@ -223,6 +243,7 @@ export function convertQuantity(item: ParsedItem, ip: IndexedProduct): { qty: nu
 
 export type ItemResolution =
   | { status: 'ok'; item: ParsedItem; product: Product; qty: number; note?: string; warning?: string }
+  | { status: 'inactive'; item: ParsedItem; options: Product[]; message: string }
   | { status: 'ambiguous'; item: ParsedItem; options: Product[]; message: string }
   | { status: 'ask_qty'; item: ParsedItem; product: Product; message: string; choices: number[] }
   | { status: 'not_found'; item: ParsedItem; message: string };
@@ -249,9 +270,31 @@ function unknownWords(index: ProductIndex, item: ParsedItem): string[] {
   );
 }
 
-export function resolveItem(index: ProductIndex, item: ParsedItem, cartQty: (productId: string) => number): ItemResolution {
+function isExactProductPhrase(index: ProductIndex, words: string[]): boolean {
+  return index.items.some((item) =>
+    words.every((word) => item.words.some((productWord) => similarity(word, productWord) >= 0.97)),
+  );
+}
+
+export function resolveItem(index: ProductIndex, item: ParsedItem, cartQty: (productId: string) => number, inactiveIndex?: ProductIndex): ItemResolution {
   let candidates = matchProducts(index, item.nameTokens);
   if (candidates.length === 0) {
+    const inactiveCandidates = inactiveIndex ? matchProducts(inactiveIndex, item.nameTokens) : [];
+    if (inactiveCandidates.length > 0) {
+      let options = inactiveCandidates;
+      if (item.priceHint !== null) {
+        const byPrice = options.filter((candidate) => candidate.ip.product.salePrice === Math.round(item.priceHint! * 100) || candidate.ip.numbers.includes(item.priceHint!));
+        if (byPrice.length > 0) options = byPrice;
+      }
+      return {
+        status: 'inactive',
+        item,
+        options: options.slice(0, 8).map((candidate) => candidate.ip.product),
+        message: options.length === 1
+          ? `${options[0]!.ip.product.name} product list mein inactive hai. Bill se pehle ise activate karein.`
+          : `Matching products inactive hain: ${options.slice(0, 8).map((candidate) => candidate.ip.product.name).join(', ')}. Bill se pehle product activate karein.`,
+      };
+    }
     return { status: 'not_found', item, message: `"${item.spokenName}" nahi mila. Product search karein?` };
   }
   // "Brite Surf" when the shop has no Brite: don't quietly sell Surf Excel instead — ask.
@@ -369,20 +412,52 @@ export interface Resolution {
 
 export function resolveCommand(
   text: string,
-  data: { products: Product[]; customers: Customer[]; index?: ProductIndex },
+  data: { products: Product[]; customers: Customer[]; index?: ProductIndex; inactiveIndex?: ProductIndex },
   cartQty: (productId: string) => number = () => 0,
 ): Resolution {
   const index = data.index ?? buildProductIndex(data.products);
-  let command = parseCommand(text);
+  const inactiveIndex = data.inactiveIndex ?? buildProductIndex(data.products, { includeInactive: true });
+  const shouldStartNewProduct = (currentNameTokens: string[], nextToken: string) => {
+    if (isGeneric(nextToken)) return false;
+    const current = matchProducts(index, currentNameTokens);
+    const next = matchProducts(index, [nextToken]);
+    return current.length === 1 && next.length === 1 &&
+      current[0]!.exact && next[0]!.exact &&
+      current[0]!.ip.product.id !== next[0]!.ip.product.id;
+  };
+  const parserOptions = { shouldStartNewProduct };
+  let command = parseCommand(text, parserOptions);
   let customer = resolveCustomer(data.customers, command.customerName);
 
   // "Surf ka packet": the word before "ka" was a product, not a person.
   if (customer.status === 'not_found' && command.customerName && matchProducts(index, tokenize(command.customerName)).length > 0) {
-    command = parseCommand(text, { detectCustomer: false });
+    command = parseCommand(text, { ...parserOptions, detectCustomer: false });
     customer = { status: 'none' };
   }
 
-  const items = command.items.map((i) => resolveItem(index, i, cartQty));
+  // A customer named before the products does not need a possessive marker ("Rashid, 2 Lux").
+  if (customer.status === 'none' && command.customerName === null) {
+    const tokens = tokenize(text);
+    for (let length = Math.min(tokens.length, 4); length > 0; length--) {
+      const name = tokens.slice(0, length);
+      if (isExactProductPhrase(index, name)) continue;
+      const candidateCommand = parseCommand(text, { ...parserOptions, customerPrefixLength: length });
+      if (!candidateCommand.customerName) continue;
+      const match = resolveCustomer(data.customers, candidateCommand.customerName);
+      if (match.status === 'none' || match.status === 'not_found') continue;
+
+      const tail = tokens.slice(length);
+      const tailCommand = parseCommand(tail.join(' '), { ...parserOptions, detectCustomer: false });
+      const tailHasProduct = tailCommand.items.some((item) => matchProducts(index, item.nameTokens).length > 0);
+      if (tail.length > 0 && !tailHasProduct) continue;
+
+      command = candidateCommand;
+      customer = resolveCustomer(data.customers, command.customerName);
+      break;
+    }
+  }
+
+  const items = command.items.map((i) => resolveItem(index, i, cartQty, inactiveIndex));
   const result: Resolution = { command, customer, items, paymentMethod: command.paymentMethod, amount: command.amount };
   if (command.intent === 'UNKNOWN') result.error = 'Sorry, command samajh nahi aayi. Dobara bolain.';
   return result;

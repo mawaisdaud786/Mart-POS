@@ -6,6 +6,7 @@ import {
   foreignKey,
   index,
   int,
+  json,
   mysqlTable,
   primaryKey,
   uniqueIndex,
@@ -14,7 +15,7 @@ import {
 } from 'drizzle-orm/mysql-core';
 import { docColumns, money, nowMs, qty, ts, uuid } from './columns.js';
 import { productUnits, products } from './catalog.js';
-import { branches } from './identity.js';
+import { branches, devices } from './identity.js';
 
 /** Stock-on-hand projection per branch. Rebuilt from inventory_movements; never edited by hand. */
 export const inventoryBalances = mysqlTable(
@@ -46,6 +47,35 @@ export const inventoryBalances = mysqlTable(
       columns: [t.tenantId, t.branchId],
       foreignColumns: [branches.tenantId, branches.id],
     }),
+  ],
+);
+
+export interface InventoryReservationLine {
+  productId: string;
+  qty: number;
+}
+
+export const inventoryReservations = mysqlTable(
+  'inventory_reservations',
+  {
+    tenantId: uuid('tenant_id').notNull(),
+    reservationId: uuid('reservation_id').notNull(),
+    branchId: uuid('branch_id').notNull(),
+    deviceId: uuid('device_id').notNull(),
+    userId: uuid('user_id').notNull(),
+    lines: json('lines').$type<InventoryReservationLine[]>().notNull(),
+    status: varchar('status', { length: 20 }).notNull().default('active'),
+    expiresAt: ts('expires_at').notNull(),
+    createdAt: ts('created_at').notNull().default(nowMs),
+    updatedAt: ts('updated_at').notNull().default(nowMs),
+  },
+  (t) => [
+    primaryKey({ columns: [t.tenantId, t.reservationId] }),
+    index('inventory_reservations_expiry_idx').on(t.tenantId, t.branchId, t.status, t.expiresAt),
+    index('inventory_reservations_device_idx').on(t.tenantId, t.deviceId, t.status),
+    foreignKey({ name: 'fk_inventory_reservations_branch', columns: [t.tenantId, t.branchId], foreignColumns: [branches.tenantId, branches.id] }),
+    foreignKey({ name: 'fk_inventory_reservations_device', columns: [t.tenantId, t.deviceId], foreignColumns: [devices.tenantId, devices.id] }),
+    check('inventory_reservations_status_ck', sql`${t.status} in ('active','expired','released','completed')`),
   ],
 );
 

@@ -110,6 +110,10 @@ export const DEFAULT_SETTINGS: Record<string, unknown> = {
   'reinvest.min_cash_reserve': 2000000, // Rs 20,000
   'sync.offline_session_hours': 72,
   'sync.document_window_days': 90,
+  'ghar.discount_percent': 5,
+  'ghar.minimum_margin_percent': 10,
+  'ghar.delivery_fee': 15000,
+  'ghar.free_delivery_threshold': 400000,
 };
 
 /**

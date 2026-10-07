@@ -91,6 +91,7 @@ export const products = mysqlTable(
     baseUnitId: uuid('base_unit_id').notNull(),
     isWeighed: boolean('is_weighed').notNull().default(false),
     salePrice: money('sale_price').notNull().default(0),
+    thresholdPrice: money('threshold_price'),
     wholesalePrice: money('wholesale_price'),
     minSalePrice: money('min_sale_price'),
     taxRateId: uuid('tax_rate_id'),
@@ -130,6 +131,7 @@ export const products = mysqlTable(
     foreignKey({ name: 'fk_products_base_unit', columns: [t.baseUnitId], foreignColumns: [units.id] }),
     check('products_status_ck', sql`${t.status} in ('active','inactive')`),
     check('products_price_ck', sql`${t.salePrice} >= 0`),
+    check('products_threshold_price_ck', sql`${t.thresholdPrice} is null or (${t.thresholdPrice} >= 0 and ${t.thresholdPrice} <= ${t.salePrice})`),
   ],
 );
 

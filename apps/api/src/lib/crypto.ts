@@ -29,6 +29,18 @@ export class Encryptor {
     return Buffer.concat([Buffer.from([1]), iv, cipher.getAuthTag(), data]);
   }
 
+  /**
+   * Text form (base64) for columns that the database driver hands back as a string: drizzle decodes
+   * `varbinary` as UTF-8, which would corrupt raw ciphertext. Base64 survives that unchanged.
+   */
+  encryptToText(plain: string): string {
+    return this.encrypt(plain).toString('base64');
+  }
+
+  decryptFromText(text: string): string {
+    return this.decrypt(Buffer.from(text, 'base64'));
+  }
+
   decrypt(blob: Buffer): string {
     if (blob[0] !== 1) throw new Error('Unknown encryption format');
     const decipher = createDecipheriv('aes-256-gcm', this.key, blob.subarray(1, 13));

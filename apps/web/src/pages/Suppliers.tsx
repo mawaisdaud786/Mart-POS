@@ -1,14 +1,21 @@
-import { useLiveQuery } from 'dexie-react-hooks';
 import { HandCoins, PackagePlus, Pencil, Plus, Trash2, Truck } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { LedgerTable } from '../components/Ledger';
+import { useVoiceAssistant } from '../components/VoiceAssistant';
 import { Button, Card, Empty, Field, Input, Modal, MoneyInput, PageHeader, Select, Stat, cx, td, th, useAction } from '../components/ui';
 import { ACCOUNT_IDS, db, nowIso, uid, type Product, type Supplier } from '../lib/db';
 import { fmtDateTime, lineTotal, rs } from '../lib/format';
 import { addPartyAdjustment, paySupplier, recordPurchase } from '../lib/ops';
 import { partyBalances } from '../lib/reports';
+import { useUser } from '../lib/session';
+import { useLiveQuery } from '../lib/store';
+
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export function SuppliersPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [focus, setFocus] = useState(() => searchParams.get('focus') === 'payables' ? 'payables' : '');
   const suppliers = useLiveQuery(() => db.suppliers.orderBy('name').toArray(), []) ?? [];
   const balances = useLiveQuery(() => partyBalances('supplier'), []) ?? new Map<string, number>();
   const purchases = useLiveQuery(() => db.purchases.orderBy('date').reverse().limit(50).toArray(), []) ?? [];
@@ -18,6 +25,7 @@ export function SuppliersPage() {
   const [buying, setBuying] = useState<string | null>(null);
   const totalDue = [...balances.values()].filter((v) => v > 0).reduce((s, v) => s + v, 0);
   const name = (id: string) => suppliers.find((s) => s.id === id)?.name ?? '—';
+  const visibleSuppliers = focus === 'payables' ? suppliers.filter((supplier) => (balances.get(supplier.id) ?? 0) > 0) : suppliers;
 
   return (
     <div>
@@ -35,6 +43,12 @@ export function SuppliersPage() {
           </>
         }
       />
+      {focus && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          <span>Focused view: <strong>Suppliers with balances due</strong> · {visibleSuppliers.length} matching suppliers</span>
+          <Button size="sm" variant="secondary" onClick={() => { setFocus(''); const next = new URLSearchParams(searchParams); next.delete('focus'); setSearchParams(next, { replace: true }); }}>Clear focus</Button>
+        </div>
+      )}
       <div className="mb-4 grid gap-3 sm:grid-cols-3">
         <Stat label="You owe suppliers" value={rs(totalDue)} tone="red" />
         <Stat label="Suppliers" value={suppliers.length} />
@@ -50,7 +64,7 @@ export function SuppliersPage() {
       </div>
       <Card>
         {tab === 'suppliers' ? (
-          suppliers.length === 0 ? (
+          visibleSuppliers.length === 0 ? (
             <Empty icon={<Truck size={40} />} title="No suppliers yet" />
           ) : (
             <table className="w-full">
@@ -58,13 +72,14 @@ export function SuppliersPage() {
                 <tr>
                   <th className={th}>Supplier</th>
                   <th className={th}>Phone</th>
+                  <th className={th}>Weekly order day</th>
                   <th className={cx(th, 'text-right')}>Delivery days</th>
                   <th className={cx(th, 'text-right')}>You owe</th>
                   <th className={th} />
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {suppliers.map((s) => {
+                {visibleSuppliers.map((s) => {
                   const bal = balances.get(s.id) ?? 0;
                   return (
                     <tr key={s.id} className="cursor-pointer hover:bg-slate-50" onClick={() => setOpen(s)}>
@@ -73,6 +88,7 @@ export function SuppliersPage() {
                         <div className="text-xs text-slate-500">{s.company}</div>
                       </td>
                       <td className={cx(td, 'text-slate-600')}>{s.phone}</td>
+                      <td className={td}>{s.orderDay === undefined ? 'Not set' : WEEKDAYS[s.orderDay]}</td>
                       <td className={cx(td, 'text-right')}>{s.leadDays ?? '—'}</td>
                       <td className={cx(td, 'text-right font-semibold tabular-nums', bal > 0 && 'text-rose-600')}>{rs(bal)}</td>
                       <td className={cx(td, 'whitespace-nowrap text-right')} onClick={(e) => e.stopPropagation()}>
@@ -130,7 +146,13 @@ export function SuppliersPage() {
 
 function SupplierForm({ supplier, onClose }: { supplier: Supplier | null; onClose: () => void }) {
   const run = useAction();
-  const [f, setF] = useState({ name: supplier?.name ?? '', company: supplier?.company ?? '', phone: supplier?.phone ?? '', leadDays: String(supplier?.leadDays ?? 2) });
+  const [f, setF] = useState({
+    name: supplier?.name ?? '',
+    company: supplier?.company ?? '',
+    phone: supplier?.phone ?? '',
+    orderDay: supplier?.orderDay === undefined ? '' : String(supplier.orderDay),
+    leadDays: String(supplier?.leadDays ?? 2),
+  });
   const [opening, setOpening] = useState(0);
   return (
     <Modal
@@ -141,7 +163,13 @@ function SupplierForm({ supplier, onClose }: { supplier: Supplier | null; onClos
           disabled={!f.name.trim()}
           onClick={() =>
             run(async () => {
-              const data = { name: f.name.trim(), company: f.company, phone: f.phone, leadDays: Number(f.leadDays) || undefined };
+              const data = {
+                name: f.name.trim(),
+                company: f.company,
+                phone: f.phone,
+                orderDay: f.orderDay === '' ? undefined : Number(f.orderDay),
+                leadDays: Number(f.leadDays) || undefined,
+              };
               if (supplier) await db.suppliers.update(supplier.id, data);
               else {
                 const id = uid();
@@ -166,7 +194,13 @@ function SupplierForm({ supplier, onClose }: { supplier: Supplier | null; onClos
         <Field label="Phone (for WhatsApp orders)">
           <Input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
         </Field>
-        <Field label="Days to deliver after order" hint="Used to calculate when to reorder">
+        <Field label="Weekly order day">
+          <Select value={f.orderDay} onChange={(e) => setF({ ...f, orderDay: e.target.value })}>
+            <option value="">No fixed order day</option>
+            {WEEKDAYS.map((day, index) => <option key={day} value={index}>{day}</option>)}
+          </Select>
+        </Field>
+        <Field label="Days to deliver after order" hint="Used to calculate delivery dates and order quantities">
           <Input inputMode="numeric" value={f.leadDays} onChange={(e) => setF({ ...f, leadDays: e.target.value })} />
         </Field>
         {!supplier && (
@@ -235,6 +269,7 @@ interface Line {
 /** Receive stock from a supplier: quantities by unit or carton, cost, and how much was paid now. */
 function PurchaseModal({ supplierId, suppliers, onClose }: { supplierId: string; suppliers: Supplier[]; onClose: () => void }) {
   const run = useAction();
+  const user = useUser();
   const products = useLiveQuery(() => db.products.filter((p) => p.active).sortBy('name'), []) ?? [];
   const accounts = useLiveQuery(() => db.accounts.filter((a) => a.active).toArray(), []) ?? [];
   const [sid, setSid] = useState(supplierId || suppliers[0]?.id || '');
@@ -246,6 +281,34 @@ function PurchaseModal({ supplierId, suppliers, onClose }: { supplierId: string;
 
   const byId = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
   const supplierProducts = products.filter((p) => p.supplierId === sid);
+  const addVoiceLine = (p: Product, qty: number) => {
+    if (!Number.isFinite(qty) || qty <= 0) return false;
+    setLines((current) => {
+      const existing = current.find((line) => line.productId === p.id);
+      if (existing) {
+        const enteredQty = existing.byPack && p.packSize ? qty / p.packSize : qty;
+        return current.map((line) => line.key === existing.key
+          ? { ...line, qty: String((Number(line.qty) || 0) + enteredQty) }
+          : line);
+      }
+      return [...current, { key: uid(), productId: p.id, qty: String(qty), byPack: false, cost: p.cost }];
+    });
+    return true;
+  };
+  const voice = useVoiceAssistant({
+    purpose: 'purchase',
+    cartQty: () => 0,
+    addToBill: addVoiceLine,
+    setCustomer: () => undefined,
+    setPayment: () => undefined,
+    searchProduct: () => undefined,
+    userId: user.id,
+    canKhataAmount: false,
+  });
+  const close = () => {
+    voice.stopHandsFree();
+    onClose();
+  };
 
   const addLine = (p: Product) => {
     if (lines.some((l) => l.productId === p.id)) return;
@@ -268,10 +331,10 @@ function PurchaseModal({ supplierId, suppliers, onClose }: { supplierId: string;
     <Modal
       wide
       title="Receive stock (purchase)"
-      onClose={onClose}
+      onClose={close}
       footer={
         <>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={close}>
             Cancel
           </Button>
           <Button
@@ -282,10 +345,9 @@ function PurchaseModal({ supplierId, suppliers, onClose }: { supplierId: string;
                   supplierId: sid,
                   invoiceNo,
                   items: lines.map((l) => ({ productId: l.productId, qty: units(l), cost: unitCost(l), total: lineTotal(l.cost, Number(l.qty) || 0) })),
-                  paid,
-                  accountId: paid > 0 ? accountId : undefined,
+                  payments: paid > 0 ? [{ accountId, amount: paid }] : [],
                 });
-                onClose();
+                close();
               }, 'Stock received and supplier account updated')
             }
           >
@@ -336,6 +398,13 @@ function PurchaseModal({ supplierId, suppliers, onClose }: { supplierId: string;
           </Select>
         </Field>
       </div>
+      <div className="mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 p-2">
+        <span className="text-sm font-semibold text-slate-700">Voice assistant</span>
+        <div className="w-36">{voice.button}</div>
+        {voice.controls}
+        <span className="text-xs text-slate-500">Hold the mic and say products with quantities, e.g. “2 Sooper aur 5 kg cheeni”.</span>
+      </div>
+      {voice.panel}
       {lines.length === 0 ? (
         <p className="rounded-lg border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">Add the products on the supplier's bill.</p>
       ) : (
@@ -345,7 +414,7 @@ function PurchaseModal({ supplierId, suppliers, onClose }: { supplierId: string;
               <th className={th}>Product</th>
               <th className={th}>Buy in</th>
               <th className={cx(th, 'text-right')}>Qty</th>
-              <th className={cx(th, 'text-right')}>Cost each (Rs)</th>
+              <th className={cx(th, 'text-right')}>Cost per selected buy unit (Rs)</th>
               <th className={cx(th, 'text-right')}>Line total</th>
               <th className={th} />
             </tr>
@@ -385,7 +454,12 @@ function PurchaseModal({ supplierId, suppliers, onClose }: { supplierId: string;
                     <input className="w-20 rounded border border-slate-300 px-2 py-1 text-right text-sm" inputMode="decimal" value={l.qty} onChange={(e) => update({ qty: e.target.value })} />
                   </td>
                   <td className={cx(td, 'text-right')}>
-                    <MoneyInput className="w-28 py-1 text-right" value={l.cost} onChange={(v) => update({ cost: v })} />
+                    <MoneyInput
+                      className="w-28 py-1 text-right"
+                      aria-label={`Cost per ${l.byPack && p.packName ? p.packName : p.unit} for ${p.name}`}
+                      value={l.cost}
+                      onChange={(v) => update({ cost: v })}
+                    />
                   </td>
                   <td className={cx(td, 'text-right tabular-nums')}>{rs(lineTotal(l.cost, Number(l.qty) || 0))}</td>
                   <td className={td}>

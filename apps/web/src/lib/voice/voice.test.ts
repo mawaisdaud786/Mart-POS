@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Customer, Product } from '../db';
+import { completeWakeCommand, confirmationAnswer, localizeSpeechText, removeWakeWords, sleepCommandRemainder, spokenNumber, voiceChoiceIndex, wakeWordRemainder } from './interaction';
 import { parseCommand } from './parse';
 import { resolveCommand } from './resolve';
 
@@ -33,13 +34,77 @@ const products: Product[] = [
   P('Sugar', 'Kg', 160, 50, { nameUr: 'چینی' }),
   P('Basmati Rice', 'Kg', 380, 40),
   P('Old Discontinued Tea', 'Packet', 10, 0, { active: false }),
+  P('Cocomos Vanilla (Rs 10 pack)', 'Piece', 10, 0, { active: false }),
+  P('Cocomos Vanilla (Rs 50 pack)', 'Piece', 50, 0, { active: false }),
 ];
 const C = (id: string, name: string): Customer => ({ id, name, creditLimit: 0, createdAt: '' });
 const customers = [C('c1', 'Malik Arif'), C('c2', 'Arif Khan'), C('c3', 'Muhammad Arif'), C('c4', 'Rashid Ali'), C('c5', 'Bilal Ahmed')];
 
 const run = (text: string, cart: Record<string, number> = {}) => resolveCommand(text, { products, customers }, (id) => cart[id] ?? 0);
+const batteryProducts = [P('AA Batteries', 'Piece', 40, 23), P('AAA Batteries', 'Piece', 30, 3)];
+const runBattery = (text: string) => resolveCommand(text, { products: batteryProducts, customers });
 const okItems = (r: ReturnType<typeof run>) =>
   r.items.filter((i) => i.status === 'ok').map((i) => (i.status === 'ok' ? `${i.qty} × ${i.product.name}` : ''));
+
+describe('voice confirmations', () => {
+  it('detects the Noor wake word in Roman Urdu or Urdu script', () => {
+    expect(wakeWordRemainder('noor')).toBe('');
+    expect(wakeWordRemainder('Noor add two Lux soaps')).toBe('add two lux soaps');
+    expect(wakeWordRemainder('نور چینی شامل کریں')).toBe('cheeni شامل کریں');
+    expect(wakeWordRemainder('add two Lux soaps')).toBeNull();
+    expect(removeWakeWords('Noor, add نور sugar')).toBe('add sugar');
+  });
+
+  it('ends a command on bas/bs or so jao while preserving the product words', () => {
+    expect(sleepCommandRemainder('bs')).toBe('');
+    expect(sleepCommandRemainder('Noor, Lux Soap bs')).toBe('lux soap');
+    expect(sleepCommandRemainder('Noor, Lux Soap بس')).toBe('lux soap');
+    expect(sleepCommandRemainder('Noor, Lux Soap بس کرو')).toBe('lux soap');
+    expect(sleepCommandRemainder('Noor, Lux Soap so jao')).toBe('lux soap');
+    expect(sleepCommandRemainder('Noor, Lux Soap سو جائیں')).toBe('lux soap');
+    expect(sleepCommandRemainder('Lux Soap')).toBeNull();
+    const command = sleepCommandRemainder('Noor, ek Lux Soap bs');
+    expect(command).not.toBeNull();
+    expect(run(command!).items).toMatchObject([{ status: 'ok', product: { name: 'Lux Soap' }, qty: 1 }]);
+  });
+
+  it('keeps product words when bs arrives separately after an interim transcript', () => {
+    const completed = completeWakeCommand('', 'bs', '2 kg chini');
+    expect(completed).toBe('2 kg chini');
+    expect(run(completed!).items).toMatchObject([{ status: 'ok', product: { name: 'Sugar' }, qty: 2 }]);
+    expect(completeWakeCommand('', '2 kg chini bs', '2 kg chini')).toBe('2 kg chini');
+    expect(completeWakeCommand('2 kg chini', 'bs')).toBe('2 kg chini');
+    expect(completeWakeCommand('2 kilo ceni pay', 'bs', '2 kilo ceni pay')).toBe('2 kilo ceni pay');
+  });
+
+  it('selects choices by spoken number, ordinal, or unique name', () => {
+    const choices = [{ name: 'Sooper Rs 20' }, { name: 'Sooper Rs 50' }, { name: 'Lux Soap' }];
+    expect(voiceChoiceIndex('doosra', choices)).toBe(1);
+    expect(voiceChoiceIndex('دوسرا', choices)).toBe(1);
+    expect(voiceChoiceIndex('3', choices)).toBe(2);
+    expect(voiceChoiceIndex('option 2', choices)).toBe(1);
+    expect(voiceChoiceIndex('Lux Soap', choices)).toBe(2);
+    expect(voiceChoiceIndex('Sooper', choices)).toBeNull();
+  });
+
+  it('reads spoken quantities and yes/no confirmations in Urdu and Roman Urdu', () => {
+    expect(spokenNumber('teen')).toBe(3);
+    expect(spokenNumber('آدھا')).toBe(0.5);
+    expect(confirmationAnswer('haan add kar do')).toBe('yes');
+    expect(confirmationAnswer('جی')).toBe('yes');
+    expect(confirmationAnswer('nahin add karo')).toBe('no');
+    expect(confirmationAnswer('nahin')).toBe('no');
+    expect(confirmationAnswer('نہیں')).toBe('no');
+    expect(confirmationAnswer('maybe')).toBeNull();
+  });
+
+  it('speaks Urdu responses in Urdu script without translating product names', () => {
+    expect(localizeSpeechText('1 Kg Sugar add ho gaya.', 'ur-PK')).toBe('۱ کلو Sugar شامل ہو گیا۔');
+    expect(localizeSpeechText('Rs. 500 add kar doon? Haan ya nahin bolain.', 'ur-PK')).toBe('۵۰۰ روپے شامل کر دوں؟ ہاں یا نہیں بولیں۔');
+    expect(localizeSpeechText('Kaun sa Lux Soap? Product ka naam bolain.', 'ur-PK')).toBe('کون سا Lux Soap؟ پروڈکٹ کا نام بولیں۔');
+    expect(localizeSpeechText('2 Kg Sugar add ho gaya.', 'en-IN')).toBe('2 Kg Sugar add ho gaya.');
+  });
+});
 
 describe('the six commands from the brief', () => {
   it('2 Sooper Classic biscuit 50 wale', () => {
@@ -74,6 +139,71 @@ describe('the six commands from the brief', () => {
     expect(okItems(r)).toEqual(['0.5 × Sugar', '1 × Surf Excel 1kg']);
   });
 
+  it('matches cheeni when duplicate Sugar products exist', () => {
+    const duplicateSugar = [
+      ...products,
+      P('Sugar', 'Piece', 160, 15),
+    ];
+    const result = resolveCommand('cheeni', { products: duplicateSugar, customers });
+    expect(result.items[0]?.status).toBe('ambiguous');
+    if (result.items[0]?.status === 'ambiguous') expect(result.items[0].options.map((product) => product.unit)).toEqual(['Kg', 'Piece']);
+  });
+
+  it('matches Cheeni in Urdu script to Sugar', () => {
+    expect(okItems(run('چینی'))).toEqual(['1 × Sugar']);
+  });
+
+  it('does not match Cheeni to Chana or Chilli by consonant skeleton', () => {
+    const catalog = [
+      P('Sugar', 'Kg', 160, 50, { nameUr: 'چینی' }),
+      P('Daal Chana', 'Kg', 320, 20),
+      P('National Red Chilli 200g', 'Packet', 250, 8),
+    ];
+    const result = resolveCommand('چینی', { products: catalog, customers });
+    expect(result.items[0]).toMatchObject({ status: 'ok', product: { name: 'Sugar' } });
+  });
+
+  it('uses product-specific voice keywords to select the intended product', () => {
+    const catalog = [
+      P('Brown Sugar', 'Kg', 200, 10, { voiceKeywords: ['mithas', 'meethi cheeni'] }),
+      P('Daal Chana', 'Kg', 320, 20),
+    ];
+    const result = resolveCommand('mithas', { products: catalog, customers });
+    expect(result.items[0]).toMatchObject({ status: 'ok', product: { name: 'Brown Sugar' } });
+  });
+
+  it('recognizes consecutive product keywords as separate items, with each rupee amount', () => {
+    const catalog = [
+      P('Brown Sugar', 'Kg', 200, 10, { voiceKeywords: ['mithas'] }),
+      P('Daal Chana', 'Kg', 320, 20, { voiceKeywords: ['pulses'] }),
+    ];
+    const result = resolveCommand('mithas 50 rs pulses 100 rs', { products: catalog, customers });
+    expect(result.command.items).toHaveLength(2);
+    expect(result.command.items.map((item) => item.spendAmount)).toEqual([50, 100]);
+    expect(result.items).toMatchObject([
+      { status: 'ok', product: { name: 'Brown Sugar' }, qty: 0.25 },
+      { status: 'ok', product: { name: 'Daal Chana' }, qty: 0.312 },
+    ]);
+
+    const quantities = resolveCommand('2 mithas 3 pulses', { products: catalog, customers });
+    expect(quantities.items).toMatchObject([
+      { status: 'ok', product: { name: 'Brown Sugar' }, qty: 2 },
+      { status: 'ok', product: { name: 'Daal Chana' }, qty: 3 },
+    ]);
+  });
+
+  it('converts a rupee budget into a fractional weight quantity', () => {
+    expect(okItems(run('sugar 100 rs'))).toEqual(['0.625 × Sugar']);
+    expect(run('sugar 100 rs').items[0]).toMatchObject({ status: 'ok', note: 'Rs 100 ≈ 0.625 Kg' });
+    expect(okItems(run('sugar of 100 rs'))).toEqual(['0.625 × Sugar']);
+    expect(okItems(run('100 rupees sugar'))).toEqual(['0.625 × Sugar']);
+  });
+
+  it('uses whole units for countable products when given a rupee budget', () => {
+    expect(run('100 rs Lux soap').items[0]).toMatchObject({ status: 'ask_qty', choices: [1] });
+    expect(okItems(run('250 rs Lux soap'))).toEqual(['2 × Lux Soap']);
+  });
+
   it('Rashid ke khate mein 500 ka saman — an amount on the khata, not a product', () => {
     const r = run('Rashid ke khate mein 500 ka saman');
     expect(r.command.intent).toBe('ADD_AMOUNT_TO_KHATA');
@@ -85,6 +215,18 @@ describe('the six commands from the brief', () => {
 });
 
 describe('matching', () => {
+  it('asks which size when only batteries is spoken', () => {
+    const item = runBattery('batteries').items[0]!;
+    expect(item).toMatchObject({ status: 'ambiguous' });
+    if (item.status === 'ambiguous') expect(item.options.map((product) => product.name)).toEqual(['AA Batteries', 'AAA Batteries']);
+  });
+
+  it('resolves double A battery to AA Batteries', () => {
+    const result = runBattery('double A battery');
+    expect(result.command.items[0]?.nameTokens).toEqual(['aa', 'battery']);
+    expect(result.items[0]).toMatchObject({ status: 'ok', product: { name: 'AA Batteries' } });
+  });
+
   it('asks which one when several variants match', () => {
     const r = run('Sooper');
     expect(r.items[0]).toMatchObject({ status: 'ambiguous' });
@@ -114,8 +256,18 @@ describe('matching', () => {
     expect(r.items[0]).toMatchObject({ status: 'not_found' });
   });
 
-  it('ignores inactive products', () => {
-    expect(run('old discontinued tea').items[0]!.status).toBe('not_found');
+  it('recognizes inactive products but does not resolve them for sale', () => {
+    expect(run('old discontinued tea').items[0]).toMatchObject({
+      status: 'inactive',
+      options: [{ name: 'Old Discontinued Tea', active: false }],
+    });
+  });
+
+  it('identifies inactive packaged variants without adding them to the bill', () => {
+    expect(run('cocomos vanilla').items[0]).toMatchObject({
+      status: 'inactive',
+      options: [{ name: 'Cocomos Vanilla (Rs 10 pack)' }, { name: 'Cocomos Vanilla (Rs 50 pack)' }],
+    });
   });
 
   it('a wrong price hint asks instead of picking another variant', () => {
@@ -206,6 +358,20 @@ describe('customers and payment', () => {
     expect(okItems(r)).toEqual(['1 × Surf Excel 1kg']);
   });
 
+  it('adds a spoken customer before products without requiring "ka" or "ko"', () => {
+    const r = run('Rashid Ali 2 kilo chawal');
+    expect(r.command.customerName).toBe('rashid ali');
+    expect(r.customer).toMatchObject({ status: 'found', customer: { id: 'c4' } });
+    expect(okItems(r)).toEqual(['2 × Basmati Rice']);
+  });
+
+  it('sets a customer when only their name is spoken', () => {
+    const r = run('Rashid Ali');
+    expect(r.command.customerName).toBe('rashid ali');
+    expect(r.customer).toMatchObject({ status: 'found', customer: { id: 'c4' } });
+    expect(r.items).toHaveLength(0);
+  });
+
   it('"Surf ka packet" is a product, not a customer called Surf', () => {
     const r = run('Surf ka ek packet');
     expect(r.customer.status).toBe('none');
@@ -216,7 +382,40 @@ describe('customers and payment', () => {
     expect(parseCommand('udhaar').paymentMethod).toBe('credit');
     expect(parseCommand('credit pe').paymentMethod).toBe('credit');
     expect(parseCommand('cash mein').paymentMethod).toBe('cash');
-    expect(parseCommand('cash').intent).toBe('SET_BILL_DETAILS');
+    expect(parseCommand('cash')).toMatchObject({ intent: 'SET_BILL_DETAILS', paymentMethod: 'cash', payNow: true });
+  });
+
+  it('uses cash or Urdu pay for voice checkout, not English pay', () => {
+    expect(parseCommand('pay')).toMatchObject({ payNow: false, items: [], paymentMethod: null });
+    expect(parseCommand('2 Lux soap pay')).toMatchObject({
+      payNow: false,
+      items: [{ spokenName: 'lux soap', quantity: 2 }],
+    });
+    expect(parseCommand('2 Lux soap cash')).toMatchObject({
+      payNow: true,
+      paymentMethod: 'cash',
+      items: [{ spokenName: 'lux soap', quantity: 2 }],
+    });
+    expect(parseCommand('2 kilo ceni پے کرو')).toMatchObject({
+      payNow: true,
+      items: [{ spokenName: 'ceni', quantity: 2 }],
+    });
+    expect(parseCommand('2 Lux soap udhaar pe')).toMatchObject({
+      payNow: false,
+      paymentMethod: 'credit',
+    });
+  });
+
+  it('keeps checkout intent when Noor and the sleep word surround a grocery command', () => {
+    const completed = sleepCommandRemainder('noor 2 kilo ceni cash bs');
+    expect(completed).toBe('2 kilo ceni cash');
+    const result = run(completed!);
+    expect(result.command.payNow).toBe(true);
+    expect(result.paymentMethod).toBe('cash');
+    expect(result.items).toMatchObject([{ status: 'ok', product: { name: 'Sugar' }, qty: 2 }]);
+    const separatedSleep = completeWakeCommand('2 kilo ceni cash', 'bs', '2 kilo ceni cash');
+    expect(separatedSleep).toBe('2 kilo ceni cash');
+    expect(run(separatedSleep!).items).toMatchObject([{ status: 'ok', product: { name: 'Sugar' }, qty: 2 }]);
   });
 
   it('nonsense is reported', () => {

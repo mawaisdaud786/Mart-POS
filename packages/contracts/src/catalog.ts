@@ -40,6 +40,7 @@ export const ProductFields = z.object({
   baseUnitId: Uuid,
   isWeighed: z.boolean().default(false),
   salePrice: NonNegativeMoney,
+  thresholdPrice: NonNegativeMoney.nullish(),
   wholesalePrice: NonNegativeMoney.nullish(),
   minSalePrice: NonNegativeMoney.nullish(),
   trackStock: z.boolean().default(true),

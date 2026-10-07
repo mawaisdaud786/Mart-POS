@@ -3,16 +3,17 @@
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-urdu: 'Noto Nastaliq Urdu', serif;
-  --color-brand-50: #f0fdfa;
-  --color-brand-100: #ccfbf1;
-  --color-brand-500: #14b8a6;
-  --color-brand-600: #0d9488;
-  --color-brand-700: #0f766e;
-  --color-brand-800: #115e59;
+  --color-brand-50: #f0f5f1;
+  --color-brand-100: #dce8df;
+  --color-brand-500: #14532d;
+  --color-brand-600: #0f3d27;
+  --color-brand-700: #0b3322;
+  --color-brand-800: #082a1c;
+  --color-brand-900: #052316;
 }
 
 html, body, #root { height: 100%; }
-body { @apply bg-slate-100 text-slate-800 antialiased; }
+body { @apply bg-[#e8eee9] text-slate-950 antialiased; }
 .urdu { font-family: var(--font-urdu); direction: rtl; line-height: 2; }
 input[type='number']::-webkit-inner-spin-button { opacity: 0.4; }
 

@@ -7,7 +7,7 @@
 | Engine / charset | InnoDB, `utf8mb4` / `utf8mb4_0900_ai_ci` (full Urdu support) |
 | Primary keys | `id` = UUIDv7 stored as **`BINARY(16)`** (client-generated for synced tables; UUIDv7 is time-ordered, so no byte swapping is needed and InnoDB inserts stay sequential). Written as `uuid` below. |
 | Money | `bigint` in **paisa** (Rs 1 = 100). The type alias in Drizzle is `money()` |
-| Quantity | `decimal(14,3)` in the product's **base unit** (`qty_base`) + the entered unit/qty for display |
+| Quantity | `decimal(14,3)` in the product's **base unit** (`qty_base`) + the entered unit/qty for display; POS sale quantities may be fractional only for Karyana or Grocery categories |
 | Rates/factors | `decimal(12,6)` |
 | Time | `datetime(3)` always stored in **UTC** (the connection runs `time_zone = '+00:00'`); business date = `CONVERT_TZ(occurred_at, '+00:00', '+05:00')` (Asia/Karachi has no DST) |
 | Enums | `varchar` + `CHECK` constraints (enforced since MySQL 8.0.16), easier to migrate than `ENUM` |

@@ -1,0 +1,2 @@
+ALTER TABLE `inventory_reservations` ADD CONSTRAINT `inventory_reservations_status_ck` CHECK (`inventory_reservations`.`status` in ('active','expired','released','completed'));--> statement-breakpoint
+ALTER TABLE `inventory_reservations` ADD CONSTRAINT `fk_inventory_reservations_device` FOREIGN KEY (`tenant_id`,`device_id`) REFERENCES `devices`(`tenant_id`,`id`) ON DELETE no action ON UPDATE no action;

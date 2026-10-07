@@ -1,17 +1,19 @@
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useLiveQuery } from '../lib/store';
 import { Smartphone, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ListControls, compareListValues } from '../components/ListControls';
 import { Badge, Button, Card, Empty, Field, Input, MoneyInput, PageHeader, Stat, cx, td, th, useAction } from '../components/ui';
 import { ACCOUNT_IDS, db, type ServiceType } from '../lib/db';
 import { dayKey, fmtDateTime, rs } from '../lib/format';
 import { SERVICE_TYPES, addServiceTxn, adjustAccount, deleteServiceTxn, saveClosing } from '../lib/ops';
 import { accountBalances, serviceSummary } from '../lib/reports';
 import { useSession, useUser } from '../lib/session';
+import { defaultServiceFee } from '../lib/service-fees';
 
 /** Easypaisa / JazzCash retailer counter: kept separate from shop sales. */
 export function ServicesPage() {
   const user = useUser();
-  const { can } = useSession();
+  const { can, settings } = useSession();
   const run = useAction();
   const providers = useLiveQuery(() => db.accounts.filter((a) => !!a.provider && a.active).toArray(), []) ?? [];
   const [provider, setProvider] = useState('Easypaisa');
@@ -22,7 +24,21 @@ export function ServicesPage() {
   const [mobile, setMobile] = useState('');
   const [ref, setRef] = useState('');
   const [counted, setCounted] = useState(0);
+  const [txnSearch, setTxnSearch] = useState('');
+  const [txnType, setTxnType] = useState('all');
+  const [txnSort, setTxnSort] = useState<'date' | 'amount' | 'type'>('date');
   const today = dayKey();
+
+  useEffect(() => {
+    setFee(defaultServiceFee(
+      type,
+      amount,
+      settings?.retailerCashInFee,
+      settings?.retailerCashOutFee,
+      settings?.retailerCashInStep,
+      settings?.retailerCashOutStep,
+    ));
+  }, [type, amount, settings?.retailerCashInFee, settings?.retailerCashInStep, settings?.retailerCashOutFee, settings?.retailerCashOutStep]);
 
   const data = useLiveQuery(async () => {
     const [summary, month, balances] = await Promise.all([
@@ -38,12 +54,24 @@ export function ServicesPage() {
   const cashBalance = data?.balances.find((b) => b.id === ACCOUNT_IDS.cash)?.balance ?? 0;
   const s = data?.summary;
   const t = SERVICE_TYPES[type];
+  const txnQuery = txnSearch.trim().toLocaleLowerCase();
+  const visibleTxns = [...(s?.txns ?? [])]
+    .filter((txn) => txnType === 'all' || txn.type === txnType)
+    .filter((txn) => !txnQuery || (txn.mobile ?? '').toLocaleLowerCase().includes(txnQuery) || (txn.ref ?? '').toLocaleLowerCase().includes(txnQuery))
+    .sort((a, b) => txnSort === 'amount' ? b.amount - a.amount : txnSort === 'type' ? compareListValues(a.type, b.type) : b.date.localeCompare(a.date));
 
   const save = () =>
     run(async () => {
-      await addServiceTxn({ provider, type, amount, fee, commission, mobile, ref, userId: user.id });
+      await addServiceTxn({ provider, type, amount, fee, commission, mobile, ref });
       setAmount(0);
-      setFee(0);
+      setFee(defaultServiceFee(
+        type,
+        0,
+        settings?.retailerCashInFee,
+        settings?.retailerCashOutFee,
+        settings?.retailerCashInStep,
+        settings?.retailerCashOutStep,
+      ));
       setCommission(0);
       setMobile('');
       setRef('');
@@ -111,7 +139,11 @@ export function ServicesPage() {
                 <MoneyInput className="text-lg" value={amount} onChange={setAmount} autoFocus />
               </Field>
               <div className="grid grid-cols-2 gap-2">
-                <Field label="Fee from customer (cash)">
+                <Field label="Fee from customer (cash)" hint={type === 'cash_in'
+                  ? `${rs(settings?.retailerCashInFee ?? 1_000)} per started ${rs(settings?.retailerCashInStep ?? 100_000)}`
+                  : type === 'cash_out'
+                    ? `${rs(settings?.retailerCashOutFee ?? 1_000)} per started ${rs(settings?.retailerCashOutStep ?? 50_000)}`
+                    : undefined}>
                   <MoneyInput value={fee} onChange={setFee} />
                 </Field>
                 <Field label={`Commission from ${provider}`}>
@@ -153,7 +185,7 @@ export function ServicesPage() {
                   run(async () => {
                     const diff = counted - floatBalance;
                     const note = diff !== 0 ? prompt(`Difference of ${rs(diff)}. Explain (optional):`) ?? undefined : undefined;
-                    await saveClosing({ accountId: floatAcc!.id, counted, note, userId: user.id });
+                    await saveClosing({ accountId: floatAcc!.id, counted, note });
                     setCounted(0);
                   }, 'Reconciliation saved')
                 }
@@ -166,8 +198,19 @@ export function ServicesPage() {
         </div>
 
         <Card title={`Today's ${provider} transactions`}>
+          <ListControls
+            search={txnSearch}
+            onSearch={setTxnSearch}
+            placeholder="Search mobile or transaction ID…"
+            filters={[{ label: 'Transaction type', value: txnType, options: [{ value: 'all', label: 'All types' }, ...Object.entries(SERVICE_TYPES).map(([key, service]) => ({ value: key, label: service.label }))], onChange: setTxnType }]}
+            sortValue={txnSort}
+            sortOptions={[{ value: 'date', label: 'Time · newest' }, { value: 'amount', label: 'Amount · highest' }, { value: 'type', label: 'Type · A–Z' }]}
+            onSort={(value) => setTxnSort(value as typeof txnSort)}
+          />
           {!s || s.txns.length === 0 ? (
             <Empty icon={<Smartphone size={40} />} title="No transactions today" />
+          ) : visibleTxns.length === 0 ? (
+            <Empty title="No matching transactions" />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -182,9 +225,7 @@ export function ServicesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {[...s.txns]
-                    .sort((a, b) => b.date.localeCompare(a.date))
-                    .map((x) => (
+                  {visibleTxns.map((x) => (
                       <tr key={x.id}>
                         <td className={cx(td, 'whitespace-nowrap text-slate-600')}>{fmtDateTime(x.date)}</td>
                         <td className={td}>
@@ -217,4 +258,3 @@ export function ServicesPage() {
     </div>
   );
 }
-

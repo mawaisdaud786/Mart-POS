@@ -215,9 +215,10 @@ function masterEntity(opts: MasterOptions): EntityHandler {
   };
 }
 
-const PRICE_FIELDS = ['salePrice', 'wholesalePrice', 'minSalePrice'] as const;
+const PRICE_FIELDS = ['salePrice', 'thresholdPrice', 'wholesalePrice', 'minSalePrice'] as const;
 const PRICE_HISTORY_FIELD: Record<(typeof PRICE_FIELDS)[number], string> = {
   salePrice: 'sale',
+  thresholdPrice: 'threshold',
   wholesalePrice: 'wholesale',
   minSalePrice: 'min_sale',
 };

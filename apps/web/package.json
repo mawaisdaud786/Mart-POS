@@ -7,11 +7,12 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "package:cpanel": "node scripts/package-cpanel.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
-    "dexie": "^4.4.6",
-    "dexie-react-hooks": "^4.4.0",
+    "@retailos/domain": "workspace:*",
     "lucide-react": "^1.49.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

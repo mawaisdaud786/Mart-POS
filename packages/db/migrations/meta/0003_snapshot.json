@@ -1,0 +1,6483 @@
+{
+  "version": "5",
+  "dialect": "mysql",
+  "id": "b9864b98-5480-4f47-b222-63e70bf657bd",
+  "prevId": "04661635-6a6e-4c66-b036-faf7bb73be99",
+  "tables": {
+    "admin_access_grants": {
+      "name": "admin_access_grants",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "admin_id": {
+          "name": "admin_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "scope": {
+          "name": "scope",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'read'"
+        },
+        "granted_at": {
+          "name": "granted_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "revoked_at": {
+          "name": "revoked_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "admin_access_grants_admin_id_platform_admins_id_fk": {
+          "name": "admin_access_grants_admin_id_platform_admins_id_fk",
+          "tableFrom": "admin_access_grants",
+          "tableTo": "platform_admins",
+          "columnsFrom": [
+            "admin_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "admin_access_grants_tenant_id_tenants_id_fk": {
+          "name": "admin_access_grants_tenant_id_tenants_id_fk",
+          "tableFrom": "admin_access_grants",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "admin_access_grants_id": {
+          "name": "admin_access_grants_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "admin_access_grants_scope_ck": {
+          "name": "admin_access_grants_scope_ck",
+          "value": "`admin_access_grants`.`scope` in ('read','write')"
+        }
+      }
+    },
+    "features": {
+      "name": "features",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "module": {
+          "name": "module",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "features_key": {
+          "name": "features_key",
+          "columns": [
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "plan_features": {
+      "name": "plan_features",
+      "columns": {
+        "plan_id": {
+          "name": "plan_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "feature_key": {
+          "name": "feature_key",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "plan_features_plan_id_plans_id_fk": {
+          "name": "plan_features_plan_id_plans_id_fk",
+          "tableFrom": "plan_features",
+          "tableTo": "plans",
+          "columnsFrom": [
+            "plan_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "plan_features_feature_key_features_key_fk": {
+          "name": "plan_features_feature_key_features_key_fk",
+          "tableFrom": "plan_features",
+          "tableTo": "features",
+          "columnsFrom": [
+            "feature_key"
+          ],
+          "columnsTo": [
+            "key"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "plan_features_plan_id_feature_key_pk": {
+          "name": "plan_features_plan_id_feature_key_pk",
+          "columns": [
+            "plan_id",
+            "feature_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "plans": {
+      "name": "plans",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'PKR'"
+        },
+        "price_monthly": {
+          "name": "price_monthly",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "price_yearly": {
+          "name": "price_yearly",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "trial_days": {
+          "name": "trial_days",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 14
+        },
+        "limits": {
+          "name": "limits",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "is_public": {
+          "name": "is_public",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "sort": {
+          "name": "sort",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "plans_code_uq": {
+          "name": "plans_code_uq",
+          "columns": [
+            "code"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "plans_id": {
+          "name": "plans_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "platform_admins": {
+      "name": "platform_admins",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(190)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "totp_secret_enc": {
+          "name": "totp_secret_enc",
+          "type": "varbinary(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'support'"
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "last_login_at": {
+          "name": "last_login_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "platform_admins_email_uq": {
+          "name": "platform_admins_email_uq",
+          "columns": [
+            "email"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "platform_admins_id": {
+          "name": "platform_admins_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "platform_admins_role_ck": {
+          "name": "platform_admins_role_ck",
+          "value": "`platform_admins`.`role` in ('super','support','billing')"
+        },
+        "platform_admins_status_ck": {
+          "name": "platform_admins_status_ck",
+          "value": "`platform_admins`.`status` in ('active','disabled')"
+        }
+      }
+    },
+    "platform_audit_logs": {
+      "name": "platform_audit_logs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "admin_id": {
+          "name": "admin_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "action": {
+          "name": "action",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "target_type": {
+          "name": "target_type",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "before": {
+          "name": "before",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "after": {
+          "name": "after",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "ip": {
+          "name": "ip",
+          "type": "varbinary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "platform_audit_logs_tenant_idx": {
+          "name": "platform_audit_logs_tenant_idx",
+          "columns": [
+            "tenant_id",
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "platform_audit_logs_id": {
+          "name": "platform_audit_logs_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "platform_settings": {
+      "name": "platform_settings",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "platform_settings_key": {
+          "name": "platform_settings_key",
+          "columns": [
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "subscription_events": {
+      "name": "subscription_events",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "subscription_id": {
+          "name": "subscription_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "event": {
+          "name": "event",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "from_status": {
+          "name": "from_status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "to_status": {
+          "name": "to_status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "data": {
+          "name": "data",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "actor_admin_id": {
+          "name": "actor_admin_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "subscription_events_tenant_idx": {
+          "name": "subscription_events_tenant_idx",
+          "columns": [
+            "tenant_id",
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "subscription_events_subscription_id_subscriptions_id_fk": {
+          "name": "subscription_events_subscription_id_subscriptions_id_fk",
+          "tableFrom": "subscription_events",
+          "tableTo": "subscriptions",
+          "columnsFrom": [
+            "subscription_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "subscription_events_id": {
+          "name": "subscription_events_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "subscriptions": {
+      "name": "subscriptions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "plan_id": {
+          "name": "plan_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "billing_cycle": {
+          "name": "billing_cycle",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'monthly'"
+        },
+        "trial_ends_at": {
+          "name": "trial_ends_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "current_period_start": {
+          "name": "current_period_start",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "current_period_end": {
+          "name": "current_period_end",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "grace_ends_at": {
+          "name": "grace_ends_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cancel_at_period_end": {
+          "name": "cancel_at_period_end",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "price_override": {
+          "name": "price_override",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "overrides": {
+          "name": "overrides",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_current": {
+          "name": "is_current",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "current_key": {
+          "name": "current_key",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "generated": {
+            "as": "(if(`is_current`, 1, null))",
+            "type": "stored"
+          }
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "subscriptions_current_uq": {
+          "name": "subscriptions_current_uq",
+          "columns": [
+            "tenant_id",
+            "current_key"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "subscriptions_tenant_id_tenants_id_fk": {
+          "name": "subscriptions_tenant_id_tenants_id_fk",
+          "tableFrom": "subscriptions",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "subscriptions_plan_id_plans_id_fk": {
+          "name": "subscriptions_plan_id_plans_id_fk",
+          "tableFrom": "subscriptions",
+          "tableTo": "plans",
+          "columnsFrom": [
+            "plan_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "subscriptions_id": {
+          "name": "subscriptions_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "subscriptions_status_ck": {
+          "name": "subscriptions_status_ck",
+          "value": "`subscriptions`.`status` in ('trialing','active','past_due','expired','suspended','cancelled')"
+        },
+        "subscriptions_cycle_ck": {
+          "name": "subscriptions_cycle_ck",
+          "value": "`subscriptions`.`billing_cycle` in ('monthly','yearly','custom')"
+        }
+      }
+    },
+    "tenant_sync_counters": {
+      "name": "tenant_sync_counters",
+      "columns": {
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "last_seq": {
+          "name": "last_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tenant_sync_counters_tenant_id_tenants_id_fk": {
+          "name": "tenant_sync_counters_tenant_id_tenants_id_fk",
+          "tableFrom": "tenant_sync_counters",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "tenant_sync_counters_tenant_id": {
+          "name": "tenant_sync_counters_tenant_id",
+          "columns": [
+            "tenant_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "tenants": {
+      "name": "tenants",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "legal_name": {
+          "name": "legal_name",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "business_type": {
+          "name": "business_type",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'karyana'"
+        },
+        "country": {
+          "name": "country",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'PK'"
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'PKR'"
+        },
+        "timezone": {
+          "name": "timezone",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'Asia/Karachi'"
+        },
+        "default_locale": {
+          "name": "default_locale",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'en'"
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "suspended_reason": {
+          "name": "suspended_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "tenants_slug_uq": {
+          "name": "tenants_slug_uq",
+          "columns": [
+            "slug"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "tenants_id": {
+          "name": "tenants_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "tenants_status_ck": {
+          "name": "tenants_status_ck",
+          "value": "`tenants`.`status` in ('active','suspended','archived')"
+        }
+      }
+    },
+    "attachments": {
+      "name": "attachments",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "storage_key": {
+          "name": "storage_key",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "mime": {
+          "name": "mime",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "size_bytes": {
+          "name": "size_bytes",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "original_name": {
+          "name": "original_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "uploaded_by": {
+          "name": "uploaded_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "attachments_entity_idx": {
+          "name": "attachments_entity_idx",
+          "columns": [
+            "tenant_id",
+            "entity_type",
+            "entity_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "attachments_tenant_id_tenants_id_fk": {
+          "name": "attachments_tenant_id_tenants_id_fk",
+          "tableFrom": "attachments",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "attachments_id": {
+          "name": "attachments_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "branches": {
+      "name": "branches",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "origin_device_id": {
+          "name": "origin_device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "address": {
+          "name": "address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_default": {
+          "name": "is_default",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "active_key": {
+          "name": "active_key",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "generated": {
+            "as": "(if(`deleted_at` is null, 1, null))",
+            "type": "stored"
+          }
+        }
+      },
+      "indexes": {
+        "branches_tenant_id_uq": {
+          "name": "branches_tenant_id_uq",
+          "columns": [
+            "tenant_id",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "branches_code_uq": {
+          "name": "branches_code_uq",
+          "columns": [
+            "tenant_id",
+            "code",
+            "active_key"
+          ],
+          "isUnique": true
+        },
+        "branches_seq_idx": {
+          "name": "branches_seq_idx",
+          "columns": [
+            "tenant_id",
+            "server_seq"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_branches_tenant": {
+          "name": "fk_branches_tenant",
+          "tableFrom": "branches",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "branches_id": {
+          "name": "branches_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "devices": {
+      "name": "devices",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "platform": {
+          "name": "platform",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "registered_by": {
+          "name": "registered_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "registered_at": {
+          "name": "registered_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "last_seen_at": {
+          "name": "last_seen_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "last_push_at": {
+          "name": "last_push_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "last_pulled_seq": {
+          "name": "last_pulled_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "revoked_at": {
+          "name": "revoked_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "revoked_by": {
+          "name": "revoked_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "devices_tenant_id_uq": {
+          "name": "devices_tenant_id_uq",
+          "columns": [
+            "tenant_id",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "devices_code_uq": {
+          "name": "devices_code_uq",
+          "columns": [
+            "tenant_id",
+            "code"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "fk_devices_branch": {
+          "name": "fk_devices_branch",
+          "tableFrom": "devices",
+          "tableTo": "branches",
+          "columnsFrom": [
+            "tenant_id",
+            "branch_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "devices_id": {
+          "name": "devices_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "devices_status_ck": {
+          "name": "devices_status_ck",
+          "value": "`devices`.`status` in ('active','revoked')"
+        }
+      }
+    },
+    "login_attempts": {
+      "name": "login_attempts",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "identifier": {
+          "name": "identifier",
+          "type": "varchar(190)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ip": {
+          "name": "ip",
+          "type": "varchar(45)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "success": {
+          "name": "success",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "login_attempts_identifier_idx": {
+          "name": "login_attempts_identifier_idx",
+          "columns": [
+            "identifier",
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "login_attempts_id": {
+          "name": "login_attempts_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "membership_branches": {
+      "name": "membership_branches",
+      "columns": {
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "membership_id": {
+          "name": "membership_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "fk_membership_branches_membership": {
+          "name": "fk_membership_branches_membership",
+          "tableFrom": "membership_branches",
+          "tableTo": "tenant_memberships",
+          "columnsFrom": [
+            "tenant_id",
+            "membership_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "fk_membership_branches_branch": {
+          "name": "fk_membership_branches_branch",
+          "tableFrom": "membership_branches",
+          "tableTo": "branches",
+          "columnsFrom": [
+            "tenant_id",
+            "branch_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "membership_branches_membership_id_branch_id_pk": {
+          "name": "membership_branches_membership_id_branch_id_pk",
+          "columns": [
+            "membership_id",
+            "branch_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "permissions": {
+      "name": "permissions",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "module": {
+          "name": "module",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_sensitive": {
+          "name": "is_sensitive",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "permissions_key": {
+          "name": "permissions_key",
+          "columns": [
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "refresh_tokens": {
+      "name": "refresh_tokens",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "device_id": {
+          "name": "device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "issued_at": {
+          "name": "issued_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rotated_at": {
+          "name": "rotated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "revoked_at": {
+          "name": "revoked_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "revoke_reason": {
+          "name": "revoke_reason",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "ip": {
+          "name": "ip",
+          "type": "varchar(45)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "refresh_tokens_hash_uq": {
+          "name": "refresh_tokens_hash_uq",
+          "columns": [
+            "token_hash"
+          ],
+          "isUnique": true
+        },
+        "refresh_tokens_family_idx": {
+          "name": "refresh_tokens_family_idx",
+          "columns": [
+            "family_id"
+          ],
+          "isUnique": false
+        },
+        "refresh_tokens_user_idx": {
+          "name": "refresh_tokens_user_idx",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "refresh_tokens_user_id_users_id_fk": {
+          "name": "refresh_tokens_user_id_users_id_fk",
+          "tableFrom": "refresh_tokens",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "refresh_tokens_id": {
+          "name": "refresh_tokens_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "role_permissions": {
+      "name": "role_permissions",
+      "columns": {
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role_id": {
+          "name": "role_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "permission_key": {
+          "name": "permission_key",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "role_permissions_tenant_idx": {
+          "name": "role_permissions_tenant_idx",
+          "columns": [
+            "tenant_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "role_permissions_permission_key_permissions_key_fk": {
+          "name": "role_permissions_permission_key_permissions_key_fk",
+          "tableFrom": "role_permissions",
+          "tableTo": "permissions",
+          "columnsFrom": [
+            "permission_key"
+          ],
+          "columnsTo": [
+            "key"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_role_permissions_role": {
+          "name": "fk_role_permissions_role",
+          "tableFrom": "role_permissions",
+          "tableTo": "roles",
+          "columnsFrom": [
+            "tenant_id",
+            "role_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "role_permissions_role_id_permission_key_pk": {
+          "name": "role_permissions_role_id_permission_key_pk",
+          "columns": [
+            "role_id",
+            "permission_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "roles": {
+      "name": "roles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "origin_device_id": {
+          "name": "origin_device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_system": {
+          "name": "is_system",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "system_key": {
+          "name": "system_key",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "roles_tenant_id_uq": {
+          "name": "roles_tenant_id_uq",
+          "columns": [
+            "tenant_id",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "roles_system_key_uq": {
+          "name": "roles_system_key_uq",
+          "columns": [
+            "tenant_id",
+            "system_key"
+          ],
+          "isUnique": true
+        },
+        "roles_seq_idx": {
+          "name": "roles_seq_idx",
+          "columns": [
+            "tenant_id",
+            "server_seq"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_roles_tenant": {
+          "name": "fk_roles_tenant",
+          "tableFrom": "roles",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "roles_id": {
+          "name": "roles_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "settings": {
+      "name": "settings",
+      "columns": {
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "scope_branch_id": {
+          "name": "scope_branch_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "key": {
+          "name": "key",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "settings_tenant_id_tenants_id_fk": {
+          "name": "settings_tenant_id_tenants_id_fk",
+          "tableFrom": "settings",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "settings_tenant_id_scope_branch_id_key_pk": {
+          "name": "settings_tenant_id_scope_branch_id_key_pk",
+          "columns": [
+            "tenant_id",
+            "scope_branch_id",
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "tenant_memberships": {
+      "name": "tenant_memberships",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "origin_device_id": {
+          "name": "origin_device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role_id": {
+          "name": "role_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pin_hash": {
+          "name": "pin_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "all_branches": {
+          "name": "all_branches",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "joined_at": {
+          "name": "joined_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "tenant_memberships_tenant_id_uq": {
+          "name": "tenant_memberships_tenant_id_uq",
+          "columns": [
+            "tenant_id",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "tenant_memberships_user_uq": {
+          "name": "tenant_memberships_user_uq",
+          "columns": [
+            "tenant_id",
+            "user_id"
+          ],
+          "isUnique": true
+        },
+        "tenant_memberships_user_idx": {
+          "name": "tenant_memberships_user_idx",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "tenant_memberships_seq_idx": {
+          "name": "tenant_memberships_seq_idx",
+          "columns": [
+            "tenant_id",
+            "server_seq"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "tenant_memberships_user_id_users_id_fk": {
+          "name": "tenant_memberships_user_id_users_id_fk",
+          "tableFrom": "tenant_memberships",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_memberships_tenant": {
+          "name": "fk_memberships_tenant",
+          "tableFrom": "tenant_memberships",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_memberships_role": {
+          "name": "fk_memberships_role",
+          "tableFrom": "tenant_memberships",
+          "tableTo": "roles",
+          "columnsFrom": [
+            "tenant_id",
+            "role_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "tenant_memberships_id": {
+          "name": "tenant_memberships_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "tenant_memberships_status_ck": {
+          "name": "tenant_memberships_status_ck",
+          "value": "`tenant_memberships`.`status` in ('invited','active','disabled')"
+        }
+      }
+    },
+    "tenant_profiles": {
+      "name": "tenant_profiles",
+      "columns": {
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "shop_name": {
+          "name": "shop_name",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "shop_name_ur": {
+          "name": "shop_name_ur",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "logo_key": {
+          "name": "logo_key",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "primary_color": {
+          "name": "primary_color",
+          "type": "varchar(9)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "whatsapp": {
+          "name": "whatsapp",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(190)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "address": {
+          "name": "address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "address_ur": {
+          "name": "address_ur",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "ntn": {
+          "name": "ntn",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "strn": {
+          "name": "strn",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "receipt_header": {
+          "name": "receipt_header",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "receipt_footer": {
+          "name": "receipt_footer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "receipt_width_mm": {
+          "name": "receipt_width_mm",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 80
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tenant_profiles_tenant_id_tenants_id_fk": {
+          "name": "tenant_profiles_tenant_id_tenants_id_fk",
+          "tableFrom": "tenant_profiles",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "tenant_profiles_tenant_id": {
+          "name": "tenant_profiles_tenant_id",
+          "columns": [
+            "tenant_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "tenant_profiles_width_ck": {
+          "name": "tenant_profiles_width_ck",
+          "value": "`tenant_profiles`.`receipt_width_mm` in (58, 80)"
+        }
+      }
+    },
+    "users": {
+      "name": "users",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(190)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "preferred_locale": {
+          "name": "preferred_locale",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "last_login_at": {
+          "name": "last_login_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "users_phone_uq": {
+          "name": "users_phone_uq",
+          "columns": [
+            "phone"
+          ],
+          "isUnique": true
+        },
+        "users_email_uq": {
+          "name": "users_email_uq",
+          "columns": [
+            "email"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "users_id": {
+          "name": "users_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "users_login_ck": {
+          "name": "users_login_ck",
+          "value": "`users`.`phone` is not null or `users`.`email` is not null"
+        },
+        "users_status_ck": {
+          "name": "users_status_ck",
+          "value": "`users`.`status` in ('active','disabled')"
+        }
+      }
+    },
+    "brands": {
+      "name": "brands",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "origin_device_id": {
+          "name": "origin_device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name_ur": {
+          "name": "name_ur",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "manufacturer": {
+          "name": "manufacturer",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "brands_tenant_id_uq": {
+          "name": "brands_tenant_id_uq",
+          "columns": [
+            "tenant_id",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "brands_seq_idx": {
+          "name": "brands_seq_idx",
+          "columns": [
+            "tenant_id",
+            "server_seq"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_brands_tenant": {
+          "name": "fk_brands_tenant",
+          "tableFrom": "brands",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "brands_id": {
+          "name": "brands_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "categories": {
+      "name": "categories",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "origin_device_id": {
+          "name": "origin_device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name_ur": {
+          "name": "name_ur",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sort": {
+          "name": "sort",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "color": {
+          "name": "color",
+          "type": "varchar(9)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "icon": {
+          "name": "icon",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "categories_tenant_id_uq": {
+          "name": "categories_tenant_id_uq",
+          "columns": [
+            "tenant_id",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "categories_seq_idx": {
+          "name": "categories_seq_idx",
+          "columns": [
+            "tenant_id",
+            "server_seq"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_categories_tenant": {
+          "name": "fk_categories_tenant",
+          "tableFrom": "categories",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_categories_parent": {
+          "name": "fk_categories_parent",
+          "tableFrom": "categories",
+          "tableTo": "categories",
+          "columnsFrom": [
+            "tenant_id",
+            "parent_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "categories_id": {
+          "name": "categories_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "price_history": {
+      "name": "price_history",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_unit_id": {
+          "name": "product_unit_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "field": {
+          "name": "field",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "old_value": {
+          "name": "old_value",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "new_value": {
+          "name": "new_value",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "changed_by": {
+          "name": "changed_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "changed_at": {
+          "name": "changed_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "source_type": {
+          "name": "source_type",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "price_history_product_idx": {
+          "name": "price_history_product_idx",
+          "columns": [
+            "tenant_id",
+            "product_id",
+            "changed_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_price_history_product": {
+          "name": "fk_price_history_product",
+          "tableFrom": "price_history",
+          "tableTo": "products",
+          "columnsFrom": [
+            "tenant_id",
+            "product_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "price_history_id": {
+          "name": "price_history_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "price_history_field_ck": {
+          "name": "price_history_field_ck",
+          "value": "`price_history`.`field` in ('sale','wholesale','min_sale','cost')"
+        }
+      }
+    },
+    "product_barcodes": {
+      "name": "product_barcodes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "origin_device_id": {
+          "name": "origin_device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_unit_id": {
+          "name": "product_unit_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "barcode": {
+          "name": "barcode",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active_key": {
+          "name": "active_key",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "generated": {
+            "as": "(if(`deleted_at` is null, 1, null))",
+            "type": "stored"
+          }
+        }
+      },
+      "indexes": {
+        "product_barcodes_tenant_id_uq": {
+          "name": "product_barcodes_tenant_id_uq",
+          "columns": [
+            "tenant_id",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "product_barcodes_barcode_uq": {
+          "name": "product_barcodes_barcode_uq",
+          "columns": [
+            "tenant_id",
+            "barcode",
+            "active_key"
+          ],
+          "isUnique": true
+        },
+        "product_barcodes_seq_idx": {
+          "name": "product_barcodes_seq_idx",
+          "columns": [
+            "tenant_id",
+            "server_seq"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_product_barcodes_product": {
+          "name": "fk_product_barcodes_product",
+          "tableFrom": "product_barcodes",
+          "tableTo": "products",
+          "columnsFrom": [
+            "tenant_id",
+            "product_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_product_barcodes_unit": {
+          "name": "fk_product_barcodes_unit",
+          "tableFrom": "product_barcodes",
+          "tableTo": "product_units",
+          "columnsFrom": [
+            "tenant_id",
+            "product_unit_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "product_barcodes_id": {
+          "name": "product_barcodes_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "product_units": {
+      "name": "product_units",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "origin_device_id": {
+          "name": "origin_device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "unit_id": {
+          "name": "unit_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "factor_to_base": {
+          "name": "factor_to_base",
+          "type": "decimal(14,6)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sale_price": {
+          "name": "sale_price",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "wholesale_price": {
+          "name": "wholesale_price",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_default_sale": {
+          "name": "is_default_sale",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "is_default_purchase": {
+          "name": "is_default_purchase",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "active_key": {
+          "name": "active_key",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "generated": {
+            "as": "(if(`deleted_at` is null, 1, null))",
+            "type": "stored"
+          }
+        }
+      },
+      "indexes": {
+        "product_units_tenant_id_uq": {
+          "name": "product_units_tenant_id_uq",
+          "columns": [
+            "tenant_id",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "product_units_unit_uq": {
+          "name": "product_units_unit_uq",
+          "columns": [
+            "tenant_id",
+            "product_id",
+            "unit_id",
+            "active_key"
+          ],
+          "isUnique": true
+        },
+        "product_units_seq_idx": {
+          "name": "product_units_seq_idx",
+          "columns": [
+            "tenant_id",
+            "server_seq"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_product_units_product": {
+          "name": "fk_product_units_product",
+          "tableFrom": "product_units",
+          "tableTo": "products",
+          "columnsFrom": [
+            "tenant_id",
+            "product_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_product_units_unit": {
+          "name": "fk_product_units_unit",
+          "tableFrom": "product_units",
+          "tableTo": "units",
+          "columnsFrom": [
+            "unit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "product_units_id": {
+          "name": "product_units_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "product_units_factor_ck": {
+          "name": "product_units_factor_ck",
+          "value": "`product_units`.`factor_to_base` > 0"
+        }
+      }
+    },
+    "products": {
+      "name": "products",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "origin_device_id": {
+          "name": "origin_device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "sku": {
+          "name": "sku",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name_ur": {
+          "name": "name_ur",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "brand_id": {
+          "name": "brand_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "default_supplier_id": {
+          "name": "default_supplier_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "base_unit_id": {
+          "name": "base_unit_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "is_weighed": {
+          "name": "is_weighed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "sale_price": {
+          "name": "sale_price",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "wholesale_price": {
+          "name": "wholesale_price",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "min_sale_price": {
+          "name": "min_sale_price",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "tax_rate_id": {
+          "name": "tax_rate_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "track_stock": {
+          "name": "track_stock",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "track_batches": {
+          "name": "track_batches",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "track_expiry": {
+          "name": "track_expiry",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "min_stock": {
+          "name": "min_stock",
+          "type": "decimal(14,3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "safety_stock": {
+          "name": "safety_stock",
+          "type": "decimal(14,3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "lead_time_days": {
+          "name": "lead_time_days",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "review_period_days": {
+          "name": "review_period_days",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "max_stock": {
+          "name": "max_stock",
+          "type": "decimal(14,3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_favorite": {
+          "name": "is_favorite",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "pos_sort": {
+          "name": "pos_sort",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "image_key": {
+          "name": "image_key",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "field_versions": {
+          "name": "field_versions",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "active_key": {
+          "name": "active_key",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "generated": {
+            "as": "(if(`deleted_at` is null, 1, null))",
+            "type": "stored"
+          }
+        }
+      },
+      "indexes": {
+        "products_tenant_id_uq": {
+          "name": "products_tenant_id_uq",
+          "columns": [
+            "tenant_id",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "products_sku_uq": {
+          "name": "products_sku_uq",
+          "columns": [
+            "tenant_id",
+            "sku",
+            "active_key"
+          ],
+          "isUnique": true
+        },
+        "products_category_idx": {
+          "name": "products_category_idx",
+          "columns": [
+            "tenant_id",
+            "category_id"
+          ],
+          "isUnique": false
+        },
+        "products_name_idx": {
+          "name": "products_name_idx",
+          "columns": [
+            "tenant_id",
+            "name"
+          ],
+          "isUnique": false
+        },
+        "products_seq_idx": {
+          "name": "products_seq_idx",
+          "columns": [
+            "tenant_id",
+            "server_seq"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_products_tenant": {
+          "name": "fk_products_tenant",
+          "tableFrom": "products",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_products_category": {
+          "name": "fk_products_category",
+          "tableFrom": "products",
+          "tableTo": "categories",
+          "columnsFrom": [
+            "tenant_id",
+            "category_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_products_brand": {
+          "name": "fk_products_brand",
+          "tableFrom": "products",
+          "tableTo": "brands",
+          "columnsFrom": [
+            "tenant_id",
+            "brand_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_products_base_unit": {
+          "name": "fk_products_base_unit",
+          "tableFrom": "products",
+          "tableTo": "units",
+          "columnsFrom": [
+            "base_unit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "products_id": {
+          "name": "products_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "products_status_ck": {
+          "name": "products_status_ck",
+          "value": "`products`.`status` in ('active','inactive')"
+        },
+        "products_price_ck": {
+          "name": "products_price_ck",
+          "value": "`products`.`sale_price` >= 0"
+        }
+      }
+    },
+    "units": {
+      "name": "units",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name_ur": {
+          "name": "name_ur",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "base_code": {
+          "name": "base_code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "factor_to_base": {
+          "name": "factor_to_base",
+          "type": "decimal(12,6)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "units_code_uq": {
+          "name": "units_code_uq",
+          "columns": [
+            "tenant_id",
+            "code"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "units_id": {
+          "name": "units_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "units_kind_ck": {
+          "name": "units_kind_ck",
+          "value": "`units`.`kind` in ('count','weight','volume','length')"
+        }
+      }
+    },
+    "inventory_balances": {
+      "name": "inventory_balances",
+      "columns": {
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "qty_on_hand": {
+          "name": "qty_on_hand",
+          "type": "decimal(14,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "qty_reserved": {
+          "name": "qty_reserved",
+          "type": "decimal(14,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "avg_cost": {
+          "name": "avg_cost",
+          "type": "decimal(18,4)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0'"
+        },
+        "stock_value": {
+          "name": "stock_value",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "last_movement_at": {
+          "name": "last_movement_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "last_sale_at": {
+          "name": "last_sale_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "last_receipt_at": {
+          "name": "last_receipt_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "inventory_balances_seq_idx": {
+          "name": "inventory_balances_seq_idx",
+          "columns": [
+            "tenant_id",
+            "server_seq"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_inventory_balances_product": {
+          "name": "fk_inventory_balances_product",
+          "tableFrom": "inventory_balances",
+          "tableTo": "products",
+          "columnsFrom": [
+            "tenant_id",
+            "product_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_inventory_balances_branch": {
+          "name": "fk_inventory_balances_branch",
+          "tableFrom": "inventory_balances",
+          "tableTo": "branches",
+          "columnsFrom": [
+            "tenant_id",
+            "branch_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "inventory_balances_tenant_id_branch_id_product_id_pk": {
+          "name": "inventory_balances_tenant_id_branch_id_product_id_pk",
+          "columns": [
+            "tenant_id",
+            "branch_id",
+            "product_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "inventory_movements": {
+      "name": "inventory_movements",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "source_type": {
+          "name": "source_type",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "source_line_id": {
+          "name": "source_line_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "batch_id": {
+          "name": "batch_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "movement_type": {
+          "name": "movement_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "qty_base": {
+          "name": "qty_base",
+          "type": "decimal(14,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "unit_cost": {
+          "name": "unit_cost",
+          "type": "decimal(18,4)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "total_cost": {
+          "name": "total_cost",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "balance_after": {
+          "name": "balance_after",
+          "type": "decimal(14,3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reason_code": {
+          "name": "reason_code",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "memo": {
+          "name": "memo",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "inventory_movements_product_idx": {
+          "name": "inventory_movements_product_idx",
+          "columns": [
+            "tenant_id",
+            "branch_id",
+            "product_id",
+            "occurred_at"
+          ],
+          "isUnique": false
+        },
+        "inventory_movements_source_idx": {
+          "name": "inventory_movements_source_idx",
+          "columns": [
+            "tenant_id",
+            "source_type",
+            "source_id"
+          ],
+          "isUnique": false
+        },
+        "inventory_movements_seq_idx": {
+          "name": "inventory_movements_seq_idx",
+          "columns": [
+            "tenant_id",
+            "server_seq"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_inventory_movements_product": {
+          "name": "fk_inventory_movements_product",
+          "tableFrom": "inventory_movements",
+          "tableTo": "products",
+          "columnsFrom": [
+            "tenant_id",
+            "product_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "inventory_movements_id": {
+          "name": "inventory_movements_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "inventory_movements_type_ck": {
+          "name": "inventory_movements_type_ck",
+          "value": "movement_type in ('opening','purchase','sale','sale_return','purchase_return','adjustment_in','adjustment_out','damage','expiry','transfer_in','transfer_out','count_correction')"
+        }
+      }
+    },
+    "stock_adjustment_items": {
+      "name": "stock_adjustment_items",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "adjustment_id": {
+          "name": "adjustment_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "line_no": {
+          "name": "line_no",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "batch_id": {
+          "name": "batch_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "product_unit_id": {
+          "name": "product_unit_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "qty": {
+          "name": "qty",
+          "type": "decimal(14,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "qty_base": {
+          "name": "qty_base",
+          "type": "decimal(14,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "unit_cost": {
+          "name": "unit_cost",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "memo": {
+          "name": "memo",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "stock_adjustment_items_line_uq": {
+          "name": "stock_adjustment_items_line_uq",
+          "columns": [
+            "tenant_id",
+            "adjustment_id",
+            "line_no"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "fk_stock_adjustment_items_adjustment": {
+          "name": "fk_stock_adjustment_items_adjustment",
+          "tableFrom": "stock_adjustment_items",
+          "tableTo": "stock_adjustments",
+          "columnsFrom": [
+            "tenant_id",
+            "adjustment_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_stock_adjustment_items_product": {
+          "name": "fk_stock_adjustment_items_product",
+          "tableFrom": "stock_adjustment_items",
+          "tableTo": "products",
+          "columnsFrom": [
+            "tenant_id",
+            "product_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_stock_adjustment_items_unit": {
+          "name": "fk_stock_adjustment_items_unit",
+          "tableFrom": "stock_adjustment_items",
+          "tableTo": "product_units",
+          "columnsFrom": [
+            "tenant_id",
+            "product_unit_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "stock_adjustment_items_id": {
+          "name": "stock_adjustment_items_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "stock_adjustments": {
+      "name": "stock_adjustments",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "origin_device_id": {
+          "name": "origin_device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "received_at": {
+          "name": "received_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "memo": {
+          "name": "memo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'completed'"
+        },
+        "approved_by": {
+          "name": "approved_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "stock_adjustments_tenant_id_uq": {
+          "name": "stock_adjustments_tenant_id_uq",
+          "columns": [
+            "tenant_id",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "stock_adjustments_seq_idx": {
+          "name": "stock_adjustments_seq_idx",
+          "columns": [
+            "tenant_id",
+            "server_seq"
+          ],
+          "isUnique": false
+        },
+        "stock_adjustments_date_idx": {
+          "name": "stock_adjustments_date_idx",
+          "columns": [
+            "tenant_id",
+            "branch_id",
+            "occurred_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_stock_adjustments_branch": {
+          "name": "fk_stock_adjustments_branch",
+          "tableFrom": "stock_adjustments",
+          "tableTo": "branches",
+          "columnsFrom": [
+            "tenant_id",
+            "branch_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "stock_adjustments_id": {
+          "name": "stock_adjustments_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "stock_adjustments_reason_ck": {
+          "name": "stock_adjustments_reason_ck",
+          "value": "`stock_adjustments`.`reason` in ('damage','expiry','theft','correction','opening','other')"
+        },
+        "stock_adjustments_status_ck": {
+          "name": "stock_adjustments_status_ck",
+          "value": "`stock_adjustments`.`status` in ('completed','voided')"
+        }
+      }
+    },
+    "sale_items": {
+      "name": "sale_items",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sale_id": {
+          "name": "sale_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "line_no": {
+          "name": "line_no",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "unit": {
+          "name": "unit",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "qty": {
+          "name": "qty",
+          "type": "decimal(14,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "price": {
+          "name": "price",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "discount": {
+          "name": "discount",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "cost": {
+          "name": "cost",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "returned_qty": {
+          "name": "returned_qty",
+          "type": "decimal(14,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "sale_items_line_uq": {
+          "name": "sale_items_line_uq",
+          "columns": [
+            "tenant_id",
+            "sale_id",
+            "line_no"
+          ],
+          "isUnique": true
+        },
+        "sale_items_product_idx": {
+          "name": "sale_items_product_idx",
+          "columns": [
+            "tenant_id",
+            "product_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_sale_items_sale": {
+          "name": "fk_sale_items_sale",
+          "tableFrom": "sale_items",
+          "tableTo": "sales",
+          "columnsFrom": [
+            "tenant_id",
+            "sale_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_sale_items_product": {
+          "name": "fk_sale_items_product",
+          "tableFrom": "sale_items",
+          "tableTo": "products",
+          "columnsFrom": [
+            "tenant_id",
+            "product_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "sale_items_id": {
+          "name": "sale_items_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "sales": {
+      "name": "sales",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "origin_device_id": {
+          "name": "origin_device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "received_at": {
+          "name": "received_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "no": {
+          "name": "no",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "subtotal": {
+          "name": "subtotal",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "discount": {
+          "name": "discount",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "total": {
+          "name": "total",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paid": {
+          "name": "paid",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "change_amount": {
+          "name": "change_amount",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "credit": {
+          "name": "credit",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "payments": {
+          "name": "payments",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'completed'"
+        },
+        "returned_total": {
+          "name": "returned_total",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "sales_tenant_id_uq": {
+          "name": "sales_tenant_id_uq",
+          "columns": [
+            "tenant_id",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "sales_no_uq": {
+          "name": "sales_no_uq",
+          "columns": [
+            "tenant_id",
+            "no"
+          ],
+          "isUnique": true
+        },
+        "sales_date_idx": {
+          "name": "sales_date_idx",
+          "columns": [
+            "tenant_id",
+            "branch_id",
+            "occurred_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_sales_branch": {
+          "name": "fk_sales_branch",
+          "tableFrom": "sales",
+          "tableTo": "branches",
+          "columnsFrom": [
+            "tenant_id",
+            "branch_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "sales_id": {
+          "name": "sales_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "sales_status_ck": {
+          "name": "sales_status_ck",
+          "value": "`sales`.`status` in ('completed','void')"
+        },
+        "sales_totals_ck": {
+          "name": "sales_totals_ck",
+          "value": "`sales`.`subtotal` >= 0 and `sales`.`discount` >= 0 and `sales`.`total` >= 0 and `sales`.`paid` >= 0 and `sales`.`credit` >= 0"
+        }
+      }
+    },
+    "customer_ledger_entries": {
+      "name": "customer_ledger_entries",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "origin_device_id": {
+          "name": "origin_device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "received_at": {
+          "name": "received_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sale_id": {
+          "name": "sale_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "note": {
+          "name": "note",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "customer_ledger_customer_idx": {
+          "name": "customer_ledger_customer_idx",
+          "columns": [
+            "tenant_id",
+            "customer_id",
+            "occurred_at"
+          ],
+          "isUnique": false
+        },
+        "customer_ledger_sale_uq": {
+          "name": "customer_ledger_sale_uq",
+          "columns": [
+            "tenant_id",
+            "sale_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "fk_customer_ledger_customer": {
+          "name": "fk_customer_ledger_customer",
+          "tableFrom": "customer_ledger_entries",
+          "tableTo": "customers",
+          "columnsFrom": [
+            "tenant_id",
+            "customer_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_customer_ledger_sale": {
+          "name": "fk_customer_ledger_sale",
+          "tableFrom": "customer_ledger_entries",
+          "tableTo": "sales",
+          "columnsFrom": [
+            "tenant_id",
+            "sale_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "customer_ledger_entries_id": {
+          "name": "customer_ledger_entries_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "customer_ledger_type_ck": {
+          "name": "customer_ledger_type_ck",
+          "value": "`customer_ledger_entries`.`type` in ('sale','payment','adjustment')"
+        }
+      }
+    },
+    "customers": {
+      "name": "customers",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "credit_limit": {
+          "name": "credit_limit",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "customers_tenant_id_uq": {
+          "name": "customers_tenant_id_uq",
+          "columns": [
+            "tenant_id",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "customers_name_idx": {
+          "name": "customers_name_idx",
+          "columns": [
+            "tenant_id",
+            "name"
+          ],
+          "isUnique": false
+        },
+        "customers_phone_idx": {
+          "name": "customers_phone_idx",
+          "columns": [
+            "tenant_id",
+            "phone"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "customers_id": {
+          "name": "customers_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "customers_credit_limit_ck": {
+          "name": "customers_credit_limit_ck",
+          "value": "`customers`.`credit_limit` >= 0"
+        }
+      }
+    },
+    "ghar_orders": {
+      "name": "ghar_orders",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "origin_device_id": {
+          "name": "origin_device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "received_at": {
+          "name": "received_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "no": {
+          "name": "no",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "customer_name": {
+          "name": "customer_name",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "address": {
+          "name": "address",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "items": {
+          "name": "items",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "subtotal": {
+          "name": "subtotal",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "delivery_fee": {
+          "name": "delivery_fee",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "total": {
+          "name": "total",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'invoice_draft'"
+        },
+        "note": {
+          "name": "note",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "ghar_orders_date_idx": {
+          "name": "ghar_orders_date_idx",
+          "columns": [
+            "tenant_id",
+            "branch_id",
+            "occurred_at"
+          ],
+          "isUnique": false
+        },
+        "ghar_orders_customer_idx": {
+          "name": "ghar_orders_customer_idx",
+          "columns": [
+            "tenant_id",
+            "customer_id",
+            "occurred_at"
+          ],
+          "isUnique": false
+        },
+        "ghar_orders_status_idx": {
+          "name": "ghar_orders_status_idx",
+          "columns": [
+            "tenant_id",
+            "status"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fk_ghar_orders_branch": {
+          "name": "fk_ghar_orders_branch",
+          "tableFrom": "ghar_orders",
+          "tableTo": "branches",
+          "columnsFrom": [
+            "tenant_id",
+            "branch_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_ghar_orders_customer": {
+          "name": "fk_ghar_orders_customer",
+          "tableFrom": "ghar_orders",
+          "tableTo": "customers",
+          "columnsFrom": [
+            "tenant_id",
+            "customer_id"
+          ],
+          "columnsTo": [
+            "tenant_id",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "ghar_orders_id": {
+          "name": "ghar_orders_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "ghar_orders_status_ck": {
+          "name": "ghar_orders_status_ck",
+          "value": "`ghar_orders`.`status` in ('invoice_draft','invoice_sent','confirmed','packing','out_for_delivery','delivered','cancelled')"
+        }
+      }
+    },
+    "audit_logs": {
+      "name": "audit_logs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "admin_id": {
+          "name": "admin_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "device_id": {
+          "name": "device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "ip": {
+          "name": "ip",
+          "type": "varchar(45)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "action": {
+          "name": "action",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "before": {
+          "name": "before",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "after": {
+          "name": "after",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "audit_logs_tenant_idx": {
+          "name": "audit_logs_tenant_idx",
+          "columns": [
+            "tenant_id",
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "audit_logs_entity_idx": {
+          "name": "audit_logs_entity_idx",
+          "columns": [
+            "tenant_id",
+            "entity_type",
+            "entity_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "audit_logs_id": {
+          "name": "audit_logs_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "import_job_rows": {
+      "name": "import_job_rows",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "job_id": {
+          "name": "job_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "row_no": {
+          "name": "row_no",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "data": {
+          "name": "data",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "errors": {
+          "name": "errors",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "import_job_rows_job_idx": {
+          "name": "import_job_rows_job_idx",
+          "columns": [
+            "tenant_id",
+            "job_id",
+            "row_no"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "import_job_rows_id": {
+          "name": "import_job_rows_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "import_job_rows_status_ck": {
+          "name": "import_job_rows_status_ck",
+          "value": "`import_job_rows`.`status` in ('valid','error','imported','skipped')"
+        }
+      }
+    },
+    "import_jobs": {
+      "name": "import_jobs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "file_key": {
+          "name": "file_key",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'uploaded'"
+        },
+        "total_rows": {
+          "name": "total_rows",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "valid_rows": {
+          "name": "valid_rows",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "error_rows": {
+          "name": "error_rows",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "options": {
+          "name": "options",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "finished_at": {
+          "name": "finished_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "import_jobs_tenant_idx": {
+          "name": "import_jobs_tenant_idx",
+          "columns": [
+            "tenant_id",
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "import_jobs_id": {
+          "name": "import_jobs_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "import_jobs_kind_ck": {
+          "name": "import_jobs_kind_ck",
+          "value": "`import_jobs`.`kind` in ('products','opening_stock','customers','suppliers','prices')"
+        },
+        "import_jobs_status_ck": {
+          "name": "import_jobs_status_ck",
+          "value": "`import_jobs`.`status` in ('uploaded','validating','validated','importing','done','failed')"
+        }
+      }
+    },
+    "jobs": {
+      "name": "jobs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "queue": {
+          "name": "queue",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'default'"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payload": {
+          "name": "payload",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'queued'"
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "max_attempts": {
+          "name": "max_attempts",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 5
+        },
+        "run_at": {
+          "name": "run_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "locked_at": {
+          "name": "locked_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "locked_by": {
+          "name": "locked_by",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "last_error": {
+          "name": "last_error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        },
+        "finished_at": {
+          "name": "finished_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "jobs_claim_idx": {
+          "name": "jobs_claim_idx",
+          "columns": [
+            "status",
+            "queue",
+            "run_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "jobs_id": {
+          "name": "jobs_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "jobs_status_ck": {
+          "name": "jobs_status_ck",
+          "value": "`jobs`.`status` in ('queued','running','done','failed')"
+        }
+      }
+    },
+    "sync_changes": {
+      "name": "sync_changes",
+      "columns": {
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "server_seq": {
+          "name": "server_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "op": {
+          "name": "op",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "changed_at": {
+          "name": "changed_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "sync_changes_tenant_id_server_seq_pk": {
+          "name": "sync_changes_tenant_id_server_seq_pk",
+          "columns": [
+            "tenant_id",
+            "server_seq"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "sync_changes_op_ck": {
+          "name": "sync_changes_op_ck",
+          "value": "`sync_changes`.`op` in ('upsert','delete')"
+        }
+      }
+    },
+    "sync_conflicts": {
+      "name": "sync_conflicts",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "mutation_id": {
+          "name": "mutation_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "base_version": {
+          "name": "base_version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "server_version": {
+          "name": "server_version",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_changes": {
+          "name": "client_changes",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "server_state": {
+          "name": "server_state",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'open'"
+        },
+        "resolved_by": {
+          "name": "resolved_by",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "resolved_at": {
+          "name": "resolved_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "sync_conflicts_open_idx": {
+          "name": "sync_conflicts_open_idx",
+          "columns": [
+            "tenant_id",
+            "status"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "sync_conflicts_id": {
+          "name": "sync_conflicts_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "sync_conflicts_status_ck": {
+          "name": "sync_conflicts_status_ck",
+          "value": "`sync_conflicts`.`status` in ('open','resolved_client','resolved_server')"
+        }
+      }
+    },
+    "sync_mutations": {
+      "name": "sync_mutations",
+      "columns": {
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "mutation_id": {
+          "name": "mutation_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "device_id": {
+          "name": "device_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "binary(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "op": {
+          "name": "op",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "result": {
+          "name": "result",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "client_created_at": {
+          "name": "client_created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "received_at": {
+          "name": "received_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP(3))"
+        }
+      },
+      "indexes": {
+        "sync_mutations_device_idx": {
+          "name": "sync_mutations_device_idx",
+          "columns": [
+            "tenant_id",
+            "device_id",
+            "received_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "sync_mutations_tenant_id_mutation_id_pk": {
+          "name": "sync_mutations_tenant_id_mutation_id_pk",
+          "columns": [
+            "tenant_id",
+            "mutation_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {
+        "sync_mutations_status_ck": {
+          "name": "sync_mutations_status_ck",
+          "value": "`sync_mutations`.`status` in ('applied','rejected','conflict')"
+        }
+      }
+    }
+  },
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {},
+    "indexes": {}
+  }
+}

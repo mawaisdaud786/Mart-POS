@@ -34,7 +34,7 @@ export class TenantDb {
   }
 
   select<T extends TenantTable>(table: T, where?: SQL) {
-    return this.db.select().from(table as MySqlTable).where(this.scope(table, where));
+    return this.db.select().from(table).where(this.scope(table, where));
   }
 
   insert<T extends TenantTable>(table: T, values: T['$inferInsert'] | T['$inferInsert'][]) {

@@ -1,6 +1,8 @@
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useLiveQuery } from '../lib/store';
 import { ArrowLeftRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router';
+import { compareListValues, ListControls } from '../components/ListControls';
 import { Badge, Button, Card, Empty, Field, Input, MoneyInput, PageHeader, Select, Stat, cx, td, th, useAction } from '../components/ui';
 import { ACCOUNT_IDS, db, type AccountTxn } from '../lib/db';
 import { dayKey, fmtDateTime, rangeIso, rs } from '../lib/format';
@@ -27,9 +29,11 @@ const TYPE_LABEL: Record<AccountTxn['type'], string> = {
 export function CashPage() {
   const user = useUser();
   const { settings, can } = useSession();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [focus, setFocus] = useState(() => ['difference', 'closing'].includes(searchParams.get('focus') ?? '') ? searchParams.get('focus')! : '');
   const run = useAction();
   const balances = useLiveQuery(() => accountBalances(), []) ?? [];
-  const [accountId, setAccountId] = useState<string>(ACCOUNT_IDS.cash);
+  const [accountId, setAccountId] = useState<string>(() => searchParams.get('account') ?? ACCOUNT_IDS.cash);
   const [day, setDay] = useState(dayKey());
   const [counts, setCounts] = useState<Record<number, string>>({});
   const [coins, setCoins] = useState(0);
@@ -37,6 +41,11 @@ export function CashPage() {
   const [tFrom, setTFrom] = useState<string>(ACCOUNT_IDS.cash);
   const [tTo, setTTo] = useState<string>(ACCOUNT_IDS.bank);
   const [tAmount, setTAmount] = useState(0);
+  const [txnSearch, setTxnSearch] = useState('');
+  const [txnType, setTxnType] = useState('all');
+  const [txnSort, setTxnSort] = useState<'date' | 'amount' | 'type'>('date');
+  const [closingSearch, setClosingSearch] = useState('');
+  const [closingSort, setClosingSort] = useState<'date' | 'account' | 'difference'>('date');
 
   const txns =
     useLiveQuery(async () => {
@@ -58,10 +67,34 @@ export function CashPage() {
     for (const t of txns) map.set(t.type, (map.get(t.type) ?? 0) + t.amount);
     return [...map.entries()];
   }, [txns]);
+  const txnQuery = txnSearch.trim().toLocaleLowerCase();
+  const visibleTxns = [...txns]
+    .filter((txn) => txnType === 'all' || txn.type === txnType)
+    .filter((txn) => !txnQuery || (txn.note ?? '').toLocaleLowerCase().includes(txnQuery) || TYPE_LABEL[txn.type].toLocaleLowerCase().includes(txnQuery))
+    .sort((a, b) => txnSort === 'amount'
+      ? Math.abs(b.amount) - Math.abs(a.amount)
+      : txnSort === 'type'
+        ? compareListValues(TYPE_LABEL[a.type], TYPE_LABEL[b.type])
+        : b.date.localeCompare(a.date));
+  const closingQuery = closingSearch.trim().toLocaleLowerCase();
+  const visibleClosings = [...closings]
+    .filter((closing) => focus !== 'difference' || Math.abs(closing.difference) >= (settings?.discrepancyLimit ?? 50000))
+    .filter((closing) => !closingQuery || accName(closing.accountId).toLocaleLowerCase().includes(closingQuery) || (closing.note ?? '').toLocaleLowerCase().includes(closingQuery))
+    .sort((a, b) => closingSort === 'account'
+      ? compareListValues(accName(a.accountId), accName(b.accountId))
+      : closingSort === 'difference'
+        ? Math.abs(b.difference) - Math.abs(a.difference)
+        : b.date.localeCompare(a.date));
 
   return (
     <div>
       <PageHeader title="Cash & Closing" subtitle="Where the money is, and the end-of-day cash count" />
+      {focus && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          <span>Focused view: <strong>{focus === 'difference' ? 'Cash closings with significant differences' : 'Today’s cash closing'}</strong>{focus === 'difference' ? ` · ${visibleClosings.length} matching closings` : ''}</span>
+          <Button size="sm" variant="secondary" onClick={() => { setFocus(''); const next = new URLSearchParams(searchParams); next.delete('focus'); setSearchParams(next, { replace: true }); }}>Clear focus</Button>
+        </div>
+      )}
       {!blind && (
         <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {balances.map((b) => (
@@ -71,7 +104,7 @@ export function CashPage() {
       )}
       <div className="grid gap-4 lg:grid-cols-[400px_1fr]">
         <div className="space-y-4">
-          <Card title="Daily cash closing">
+          <Card title="Daily cash closing" className={focus === 'closing' ? 'ring-2 ring-brand-700 ring-offset-2' : undefined}>
             <div className="grid gap-3 p-4">
               <Field label="Account">
                 <Select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
@@ -132,7 +165,7 @@ export function CashPage() {
                 disabled={counted <= 0 || (needsReason && !blind && !note.trim())}
                 onClick={() =>
                   run(async () => {
-                    await saveClosing({ accountId, counted, note, userId: user.id });
+                    await saveClosing({ accountId, counted, note });
                     setCounts({});
                     setCoins(0);
                     setNote('');
@@ -192,6 +225,15 @@ export function CashPage() {
                 <Empty title="No movements on this day" />
               ) : (
                 <>
+                  <ListControls
+                    search={txnSearch}
+                    onSearch={setTxnSearch}
+                    placeholder="Search movement type or detail…"
+                    filters={[{ label: 'Movement type', value: txnType, options: [{ value: 'all', label: 'All movements' }, ...Object.entries(TYPE_LABEL).map(([value, label]) => ({ value, label }))], onChange: setTxnType }]}
+                    sortValue={txnSort}
+                    sortOptions={[{ value: 'date', label: 'Time · newest' }, { value: 'amount', label: 'Amount · highest' }, { value: 'type', label: 'Type · A–Z' }]}
+                    onSort={(value) => setTxnSort(value as typeof txnSort)}
+                  />
                   <div className="grid gap-2 border-b border-slate-100 p-4 sm:grid-cols-2">
                     {summary.map(([type, amt]) => (
                       <div key={type} className="flex justify-between text-sm">
@@ -210,9 +252,7 @@ export function CashPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {[...txns]
-                        .sort((a, b) => b.date.localeCompare(a.date))
-                        .map((t) => (
+                      {visibleTxns.map((t) => (
                           <tr key={t.id}>
                             <td className={cx(td, 'whitespace-nowrap text-slate-600')}>{fmtDateTime(t.date)}</td>
                             <td className={td}>
@@ -228,10 +268,20 @@ export function CashPage() {
               )}
             </Card>
           )}
-          <Card title="Recent closings">
+          <Card title="Recent closings" className={focus === 'difference' ? 'ring-2 ring-amber-500 ring-offset-2' : undefined}>
             {closings.length === 0 ? (
               <Empty title="No closings yet" />
             ) : (
+              <>
+              <ListControls
+                search={closingSearch}
+                onSearch={setClosingSearch}
+                placeholder="Search account or note…"
+                sortValue={closingSort}
+                sortOptions={[{ value: 'date', label: 'Date · newest' }, { value: 'account', label: 'Account · A–Z' }, { value: 'difference', label: 'Difference · largest' }]}
+                onSort={(value) => setClosingSort(value as typeof closingSort)}
+              />
+              {visibleClosings.length === 0 ? <Empty title="No matching closings" /> : (
               <table className="w-full">
                 <thead className="bg-slate-50">
                   <tr>
@@ -244,7 +294,7 @@ export function CashPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {closings.map((c) => (
+                  {visibleClosings.map((c) => (
                     <tr key={c.id}>
                       <td className={cx(td, 'whitespace-nowrap text-slate-600')}>{fmtDateTime(c.date)}</td>
                       <td className={td}>{accName(c.accountId)}</td>
@@ -258,6 +308,8 @@ export function CashPage() {
                   ))}
                 </tbody>
               </table>
+              )}
+              </>
             )}
           </Card>
         </div>

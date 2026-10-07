@@ -1,0 +1,275 @@
+﻿sku,name,urdu name,barcode,category,supplier,unit,pack name,pack size,sale price (rs),cost (rs),opening stock,minimum stock,favorite,active
+AUD-lighter-50-50-001,Lighter 50,,,Household/General,19 No,Piece,,,50,24,49,0,false,true
+AUD-lighter-30-30-002,Lighter 30,,,Household/General,20 No,Piece,,,30,15,29,0,false,true
+AUD-haldi-turmeric-1000-003,Haldi / Turmeric,,,Grocery,Sami,Piece,,,1000,650,6,0,false,true
+AUD-tota-rice-250-004,Tota Rice,,,Grocery,Sami,Piece,,,250,165,20,0,false,true
+AUD-aa-batteries-40-005,AA Batteries,,,General,Sami,Piece,,,40,27.08333333,23,0,false,true
+AUD-ketchup-210g-150-006,Ketchup – 210g,,,Grocery,Sami,Piece,,,150,105,15,0,false,true
+AUD-macaroni-220-007,Macaroni,,,Grocery,Sami,Piece,,,220,160,4.5,0,false,true
+AUD-aaa-batteries-30-008,AAA Batteries,,,General,Sami,Piece,,,30,22.08333333,3,0,false,true
+AUD-sponge-80-009,Sponge,,,Household/General,Sami,Piece,,,80,60,24,0,false,true
+AUD-rangrez-food-color-20-010,Rangrez Food Color,,,General,Sami,Piece,,,20,15,30,0,false,true
+AUD-dawat-corn-flour-90-011,Dawat Corn Flour,,,Grocery,Sami,Piece,,,90,70,2,0,false,true
+AUD-masoor-dal-280-012,Masoor Dal,,,Grocery,Sami,Piece,,,280,220,3,0,false,true
+AUD-surf-rs-50-pack-50-013,Surf – Rs 50 Pack,,,Personal/Home Care,Unilever,Piece,,,50,40.13,50,0,false,true
+AUD-bajra-130-014,Bajra,,,General,Sami,Piece,,,130,105,2,0,false,true
+AUD-sabat-chawal-380-015,Sabat Chawal,,,Grocery,Sami,Piece,,,380,316,20,0,false,true
+AUD-osaka-tape-50-016,Osaka Tape,,,General,Sami,Piece,,,50,42,25,0,false,true
+AUD-lifebuoy-shampoo-175ml-350-017,Lifebuoy Shampoo – 175ml,,,Personal/Home Care,Unilever,Piece,,,350,295.5,1,0,false,true
+AUD-brite-cream-tar-small-pack-100-018,Brite Cream/Tar – small pack,,,Personal/Home Care,Sami,Piece,,,100,85,10,0,false,true
+AUD-masala-sachet-80-019,Masala Sachet,,,Grocery,Sami,Piece,,,80,68.33,130,0,false,true
+AUD-lal-lobia-450-020,Lal Lobia,,,Grocery,Sami,Piece,,,450,390,3.5,0,false,true
+AUD-white-chickpeas-250-021,White Chickpeas,,,General,Sami,Piece,,,250,220,5,0,false,true
+AUD-knorr-cube-75-022,Knorr Cube,,,General,Unilever,Piece,,,75,66.66666667,6,0,false,true
+AUD-lu-half-roll-rs-40-320-023,LU Half Roll – Rs 40,,,General,LU,Piece,,,320,285,18,0,false,true
+AUD-sugar-160-024,Sugar,,,Grocery,Sami,Piece,,,160,144,15,0,false,true
+AUD-olpers-100-025,Olpers,,,General,Sami,Piece,,,100,90,6,0,false,true
+AUD-shield-nipple-100-026,Shield Nipple,,,General,Sami,Piece,,,100,90,5,0,false,true
+AUD-colgate-100g-100-027,Colgate – 100g,,,Personal/Home Care,CP,Piece,,,100,90,3,0,false,true
+AUD-lu-half-roll-rs-50-400-028,LU Half Roll – Rs 50,,,General,LU,Piece,,,400,362,16,0,false,true
+AUD-lifebuoy-shampoo-90ml-200-029,Lifebuoy Shampoo – 90ml,,,Personal/Home Care,Unilever,Piece,,,200,182,3,0,false,true
+AUD-tarang-60-030,Tarang,,,General,Sami,Piece,,,60,54.81481481,27,0,false,true
+AUD-peek-freans-half-roll-rs-50-400-031,Peek Freans Half Roll – Rs 50,,,General,Peak Freans,Piece,,,400,367,19,0,false,true
+AUD-peek-freans-half-roll-rs-40-320-032,Peek Freans Half Roll – Rs 40,,,General,Peak Freans,Piece,,,320,294,5,0,false,true
+AUD-handi-cooking-oil-560-033,Handi Cooking Oil,,,Grocery,Sami,Piece,,,560,516,7,0,false,true
+AUD-sela-chawal-390-034,Sela Chawal,,,Grocery,Sami,Piece,,,390,360,4.8,0,false,true
+AUD-sunsilk-shampoo-185ml-500-035,Sunsilk Shampoo 185Ml,,,Personal/Home Care,Unilever,Piece,,,500,462,3,0,false,true
+AUD-noodles-rs-50-pack-50-036,Noodles – Rs 50 Pack,,,Biscuits/Snacks,Unilever,Piece,,,50,46.65277778,70,0,false,true
+AUD-shan-masala-daba-150-037,Shan Masala Daba,,,Grocery,Shan,Piece,,,150,140,4,0,false,true
+AUD-ispaghol-170g-380-038,Ispaghol – 170g,,,General,Sami,Piece,,,380,355,3,0,false,true
+AUD-bisconni-30-360-039,Bisconni 30,,,Biscuits/Snacks,Bisconni,Piece,,,360,337,18,0,false,true
+AUD-maida-160-040,Maida,,,Grocery,Sami,Piece,,,160,150,2,0,false,true
+AUD-handi-ghee-550-041,Handi Ghee,,,Grocery,Sami,Piece,,,550,516,3,0,false,true
+AUD-colgate-50g-50-042,Colgate – 50g,,,Personal/Home Care,CP,Piece,,,50,47,8,0,false,true
+AUD-shampoo-sachet-10-043,Shampoo Sachet,,,Personal/Home Care,Unilever,Piece,,,10,9.40625,100,0,false,true
+AUD-noodles-rs-35-pack-35-044,Noodles – Rs 35 Pack,,,Biscuits/Snacks,Unilever,Piece,,,35,33,72,0,false,true
+AUD-lifebuoy-soap-110g-110-045,Lifebuoy Soap – 110g,,,Personal/Home Care,Unilever,Piece,,,110,104,4,0,false,true
+AUD-lifebuoy-soap-130g-130-046,Lifebuoy Soap – 130g,,,Personal/Home Care,Unilever,Piece,,,130,123,6,0,false,true
+AUD-khushboo-oil-430-047,Khushboo Oil,,,Grocery,Sami,Piece,,,430,407,10,0,false,true
+AUD-noodles-rs-100-pack-100-048,Noodles – Rs 100 Pack,,,Biscuits/Snacks,Unilever,Piece,,,100,94.75,19,0,false,true
+AUD-khushboo-ghee-460-049,Khushboo Ghee,,,Grocery,Sami,Piece,,,460,437,15,0,false,true
+AUD-max-rs-100-100-050,Max – Rs 100,,,General,CP,Piece,,,100,95,10,0,false,true
+AUD-max-rs-60-60-051,Max – Rs 60,,,General,CP,Piece,,,60,57,14,0,false,true
+AUD-danedar-tea-170g-400-052,Danedar Tea – 170g,,,Tea,Sami,Piece,,,400,380,1,0,false,true
+AUD-max-rs-35-35-053,Max – Rs 35,,,General,CP,Piece,,,35,33.33333333,14,0,false,true
+AUD-lux-soap-130-130-054,Lux Soap 130,,,Personal/Home Care,Unilever,Piece,,,130,124,3,0,false,true
+AUD-lux-soap-160-160-055,Lux Soap 160,,,Personal/Home Care,Unilever,Piece,,,160,153,5,0,false,true
+AUD-max-rs-20-20-056,Max – Rs 20,,,General,CP,Piece,,,20,19.16666667,13,0,false,true
+AUD-danedar-tea-rs-100-pack-100-057,Danedar Tea – Rs 100 Pack,,,Tea,Sami,Piece,,,100,96,14,0,false,true
+AUD-danedar-tea-rs-50-pack-50-058,Danedar Tea – Rs 50 Pack,,,Tea,Sami,Piece,,,50,48,10,0,false,true
+AUD-vital-170g-380-059,Vital 170G,,,General,Sami,Piece,,,380,365,2,0,false,true
+AUD-tez-dum-tea-170g-380-060,Tez Dum Tea – 170g,,,Tea,Sami,Piece,,,380,365,1,0,false,true
+AUD-dalda-ghee-610-061,Dalda Ghee,,,Grocery,Sami,Piece,,,610,592,4,0,false,true
+AUD-dalda-cooking-oil-610-062,Dalda Cooking Oil,,,Grocery,Sami,Piece,,,610,592,4,0,false,true
+AUD-ispaghol-85g-180-063,Ispaghol – 85g,,,General,Sami,Piece,,,180,178,5,0,false,true
+AUD-tez-dum-tea-85g-180-064,Tez Dum Tea – 85g,,,Tea,Sami,Piece,,,180,178,3,0,false,true
+AUD-olivia-lotion-490-065,Olivia Lotion,,,Personal/Home Care,Sami,Piece,,,490,200,6,0,false,true
+AUD-bleach-60-066,Bleach,,,Personal/Home Care,Sami,Piece,,,60,25,6,0,false,true
+AUD-cooking-oil-30-30-067,Cooking Oil – 30,,,Grocery,Sami,Piece,,,30,15,36,0,false,true
+AUD-earbuds-40-068,Earbuds,,,Household/General,Sami,Piece,,,40,20,7,0,false,true
+AUD-toothpicks-40-069,Toothpicks,,,Household/General,Sami,Piece,,,40,20,7,0,false,true
+AUD-always-sanitary-pads-200-070,Always Sanitary Pads,,,Personal/Home Care,Sami,Piece,,,200,110,2,0,false,true
+AUD-poppy-spray-450-071,Poppy Spray,,,General,Sami,Piece,,,450,250,5,0,false,true
+AUD-room-freshener-250-072,Room Freshener,,,General,Sami,Piece,,,250,150,2,0,false,true
+AUD-candles-20-073,Candles,,,Household/General,Sami,Piece,,,20,12.5,48,0,false,true
+AUD-brite-cream-tar-big-pack-60-074,Brite Cream/Tar – big pack,,,Personal/Home Care,Sami,Piece,,,60,40,12,0,false,true
+AUD-multani-mitti-30-075,Multani Mitti,,,General,Sami,Piece,,,30,20,11,0,false,true
+AUD-nail-cutter-120-076,Nail Cutter,,,Household/General,Sami,Piece,,,120,80,2,0,false,true
+AUD-golden-microni-160-077,Golden Microni,,,General,Golden,Piece,,,160,110,8,0,false,true
+AUD-led-bulb-150-078,LED Bulb,,,Household/General,Sami,Piece,,,150,108,3,0,false,true
+AUD-mewa-dry-fruit-1500-079,Mewa / Dry Fruit,,,General,Sami,Piece,,,1500,1100,0.5,0,false,true
+AUD-golden-spaghetti-150g-150-080,Golden Spaghetti – 150g,,,Grocery,Golden,Piece,,,150,110,1,0,false,true
+AUD-mortein-jalebi-60-081,Mortein Jalebi,,,Personal/Home Care,Sami,Piece,,,60,45,19,0,false,true
+AUD-golden-spaghetti-200g-200-082,Golden Spaghetti – 200g,,,Grocery,Golden,Piece,,,200,150,5,0,false,true
+AUD-garam-masala-2000-083,Garam Masala,,,Grocery,Sami,Piece,,,2000,1500,0.5,0,false,true
+AUD-sandal-face-bleach-40-084,Sandal Face Bleach,,,Personal/Home Care,Sami,Piece,,,40,30,6,0,false,true
+AUD-cooking-oil-50-50-085,Cooking Oil – 50,,,Grocery,Sami,Piece,,,50,37.5,4,0,false,true
+AUD-cooking-oil-100-100-086,Cooking Oil – 100,,,Grocery,Sami,Piece,,,100,75,2,0,false,true
+AUD-d-batteries-190-087,D Batteries,,,General,Sami,Piece,,,190,150,4,0,false,true
+AUD-falcon-shoe-polish-150-088,Falcon Shoe Polish,,,Personal/Home Care,Sami,Piece,,,150,120,10,0,false,true
+AUD-sirka-t-150-089,Sirka – T,,,General,Sami,Piece,,,150,120,9,0,false,true
+AUD-khopra-dry-coconut-1500-090,Khopra / Dry Coconut,,,General,Sami,Piece,,,1500,1200,0.75,0,false,true
+AUD-tissue-box-250-091,Tissue Box,,,Household/General,Sami,Piece,,,250,200,4,0,false,true
+AUD-kick-mosquito-powder-150-092,KICK Mosquito Powder,,,Personal/Home Care,Sami,Piece,,,150,120,6,0,false,true
+AUD-coolex-powder-100g-250-093,Coolex Powder – 100g,,,General,Sami,Piece,,,250,200,3,0,false,true
+AUD-kick-liquid-polish-150-094,KICK Liquid Polish,,,Personal/Home Care,TT,Piece,,,150,120,4,0,false,true
+AUD-lip-oil-50-095,Lip Oil,,,Grocery,Sami,Piece,,,50,40,11,0,false,true
+AUD-lush-polish-50-096,Lush Polish,,,Personal/Home Care,Sami,Piece,,,50,40,9,0,false,true
+AUD-arq-e-gulab-50-097,Arq-e-Gulab,,,General,Sami,Piece,,,50,40,7,0,false,true
+AUD-joshanda-25-098,Joshanda,,,General,Sami,Piece,,,25,20,7,0,false,true
+AUD-baby-wipes-110-099,Baby Wipes,,,General,Sami,Piece,,,110,90,1,0,false,true
+AUD-veet-hair-remover-460-100,Veet Hair Remover,,,Personal/Home Care,Sami,Piece,,,460,380,4,0,false,true
+AUD-coolex-powder-150g-350-101,Coolex Powder – 150g,,,General,Sami,Piece,,,350,290,2,0,false,true
+AUD-golden-vermicelli-60-102,Golden Vermicelli,,,Grocery,Sami,Piece,,,60,50,24,0,false,true
+AUD-national-salt-60-103,National Salt,,,Grocery,Sami,Piece,,,60,50,14,0,false,true
+AUD-sunlight-500g-120-104,Sunlight 500G,,,General,Unilever,Piece,,,120,100,6,0,false,true
+AUD-kisan-daliya-60-105,Kisan Daliya,,,Grocery,Sami,Piece,,,60,50,7,0,false,true
+AUD-moti-sawayyan-60-106,Moti Sawayyan,,,Grocery,Sami,Piece,,,60,50,7,0,false,true
+AUD-kick-mosquito-lotion-120-107,KICK Mosquito Lotion,,,Personal/Home Care,TT,Piece,,,120,100,3,0,false,true
+AUD-garlic-210g-180-108,Garlic – 210g,,,General,Sami,Piece,,,180,150,2,0,false,true
+AUD-machine-oil-30-109,Machine Oil,,,Grocery,Sami,Piece,,,30,25,9,0,false,true
+AUD-mortein-refill-220-110,Mortein Refill,,,Personal/Home Care,19 No,Piece,,,220,190,2,0,false,true
+AUD-golden-color-vermicelli-big-120-111,Golden Color Vermicelli – Big,,,Grocery,Golden,Piece,,,120,105,5,0,false,true
+AUD-sufi-soap-120-112,Sufi Soap,,,Personal/Home Care,Sami,Piece,,,120,105,3,0,false,true
+AUD-dettol-liquid-250-113,Dettol Liquid,,,Personal/Home Care,19 No,Piece,,,250,220,5,0,false,true
+AUD-cerelac-450-114,Cerelac,,,General,Sami,Piece,,,450,400,1,0,false,true
+AUD-lude-polish-90-115,Lude Polish,,,Personal/Home Care,Sami,Piece,,,90,80,4,0,false,true
+AUD-sirka-phool-90-116,Sirka – Phool,,,General,Sami,Piece,,,90,80,4,0,false,true
+AUD-rafhan-custard-sachet-50-117,Rafhan Custard Sachet,,,Grocery,Unilever,Piece,,,50,45,24,0,false,true
+AUD-mortein-machine-500-118,Mortein Machine,,,Personal/Home Care,Sami,Piece,,,500,450,1,0,false,true
+AUD-golden-color-vermicelli-small-50-119,Golden Color Vermicelli – Small,,,Grocery,Golden,Piece,,,50,45,9,0,false,true
+AUD-power-plus-neel-50-120,Power Plus Neel,,,General,Sami,Piece,,,50,45,9,0,false,true
+AUD-tibet-powder-200-121,Tibet Powder,,,General,Sami,Piece,,,200,180,1,0,false,true
+AUD-medicam-110-122,Medicam,,,General,Sami,Piece,,,110,100,7,0,false,true
+AUD-tibet-soap-110-123,Tibet Soap,,,Personal/Home Care,Sami,Piece,,,110,100,4,0,false,true
+AUD-vim-powder-165-124,Vim Powder,,,Personal/Home Care,Unilever,Piece,,,165,150,2,0,false,true
+AUD-kick-liq-170-125,Kick Liq,,,Personal/Home Care,TT,Piece,,,170,155,4,0,false,true
+AUD-brite-500g-300-126,Brite – 500g,,,Personal/Home Care,19 No,Piece,,,300,275,12,0,false,true
+AUD-care-powder-250-127,Care Powder,,,General,Care,Piece,,,250,230,2,0,false,true
+AUD-kashan-powder-130-128,Kashan Powder,,,General,Kashan,Piece,,,130,120,4,0,false,true
+AUD-white-lobia-420-129,White Lobia,,,Grocery,Sami,Piece,,,420,390,4.3,0,false,true
+AUD-kashan-haleem-mix-140-130,Kashan Haleem Mix,,,General,Kashan,Piece,,,140,130,2,0,false,true
+AUD-sensodyne-150-131,Sensodyne,,,Personal/Home Care,Sami,Piece,,,150,140,6,0,false,true
+AUD-national-custard-150-132,National Custard (Rs 150 pack),,,Grocery,National,Piece,,,150,140,2,0,false,true
+AUD-tibet-vaseline-150-133,Tibet Vaseline,,,Personal/Home Care,Sami,Piece,,,150,140,2,0,false,true
+AUD-safoon-bar-75-134,Safoon Bar,,,General,Sami,Piece,,,75,70,3,0,false,true
+AUD-vim-bar-90-135,Vim Bar,,,Personal/Home Care,Unilever,Piece,,,90,84,1,0,false,true
+AUD-glaxose-d-310-136,Glaxose D,,,General,Unilever,Piece,,,310,290.3333333,2,0,false,true
+AUD-knorr-yakhni-80-137,Knorr Yakhni,,,General,Unilever,Piece,,,80,75,4,0,false,true
+AUD-danedar-tea-bag-250-138,Danedar Tea Bag,,,Tea,Sami,Piece,,,250,235,2,0,false,true
+AUD-honey-170-139,Honey,,,Grocery,Sami,Piece,,,170,160,2,0,false,true
+AUD-safeguard-soap-175-140,Safeguard Soap,,,Personal/Home Care,Unilever,Piece,,,175,165,5,0,false,true
+AUD-ispaghol-430g-900-141,Ispaghol – 430g,,,General,Sami,Piece,,,900,850,3,0,false,true
+AUD-rafhan-jelly-190-142,Rafhan Jelly,,,Grocery,Unilever,Piece,,,190,180.5,5,0,false,true
+AUD-surf-excel-500g-300-143,Surf Excel – 500g,,,Personal/Home Care,Unilever,Piece,,,300,286,3,0,false,true
+AUD-rafhan-custard-220-144,Rafhan Custard,,,Grocery,Unilever,Piece,,,220,210,4,0,false,true
+AUD-care-lotion-220-145,Care Lotion,,,Personal/Home Care,Sami,Piece,,,220,210,3,0,false,true
+AUD-national-custard-220-146,National Custard (Rs 220 pack),,,Grocery,National,Piece,,,220,210,1,0,false,true
+AUD-ispaghol-350g-720-147,Ispaghol – 350g,,,General,Sami,Piece,,,720,690,2,0,false,true
+AUD-rafhan-corn-flour-175-148,Rafhan Corn Flour,,,Grocery,Unilever,Piece,,,175,169,8,0,false,true
+AUD-laziza-kheer-165-149,Laziza Kheer,,,Grocery,Sami,Piece,,,165,160,5,0,false,true
+AUD-knorr-soup-175-150,Knorr Soup,,,General,Unilever,Piece,,,175,170,2,0,false,true
+AUD-comfort-250-151,Comfort,,,Personal/Home Care,Unilever,Piece,,,250,245,2,0,false,true
+AUD-max-rs-120-115-152,Max – Rs 120,,,General,CP,Piece,,,115,114,5,0,false,true
+PKG-super-classic-biscuit-rs-50-001,Super Classic Biscuit (Rs. 50 pack),,,Biscuit,Peak Freans,Piece,,,50,,,0,false,false
+PKG-super-classic-biscuit-rs-30-002,Super Classic Biscuit (Rs. 30 pack),,,Biscuit,Peak Freans,Piece,,,30,,,0,false,false
+PKG-super-classic-biscuit-rs-20-003,Super Classic Biscuit (Rs. 20 pack),,,Biscuit,Peak Freans,Piece,,,20,,,0,false,false
+PKG-super-classic-biscuit-rs-10-004,Super Classic Biscuit (Rs. 10 pack),,,Biscuit,Peak Freans,Piece,,,10,,,0,false,false
+PKG-super-chocolate-biscuit-rs-50-005,Super Chocolate Biscuit (Rs. 50 pack),,,Biscuit,Peak Freans,Piece,,,50,,,0,false,false
+PKG-super-chocolate-biscuit-rs-30-006,Super Chocolate Biscuit (Rs. 30 pack),,,Biscuit,Peak Freans,Piece,,,30,,,0,false,false
+PKG-super-chocolate-biscuit-rs-20-007,Super Chocolate Biscuit (Rs. 20 pack),,,Biscuit,Peak Freans,Piece,,,20,,,0,false,false
+PKG-rio-strawberry-biscuit-rs-50-008,Rio Strawberry Biscuit (Rs. 50 pack),,,Biscuit,Peak Freans,Piece,,,50,,,0,false,false
+PKG-rio-strawberry-biscuit-rs-20-009,Rio Strawberry Biscuit (Rs. 20 pack),,,Biscuit,Peak Freans,Piece,,,20,,,0,false,false
+PKG-rio-strawberry-biscuit-rs-10-010,Rio Strawberry Biscuit (Rs. 10 pack),,,Biscuit,Peak Freans,Piece,,,10,,,0,false,false
+PKG-rio-chocolate-biscuit-rs-50-011,Rio Chocolate Biscuit (Rs. 50 pack),,,Biscuit,Peak Freans,Piece,,,50,,,0,false,false
+PKG-rio-chocolate-biscuit-rs-20-012,Rio Chocolate Biscuit (Rs. 20 pack),,,Biscuit,Peak Freans,Piece,,,20,,,0,false,false
+PKG-rio-chocolate-biscuit-rs-10-013,Rio Chocolate Biscuit (Rs. 10 pack),,,Biscuit,Peak Freans,Piece,,,10,,,0,false,false
+PKG-butter-puff-biscuit-rs-50-014,Butter Puff Biscuit (Rs. 50 pack),,,Biscuit,Peak Freans,Piece,,,50,,,0,false,false
+PKG-click-biscuit-rs-50-015,Click Biscuit (Rs. 50 pack),,,Biscuit,Peak Freans,Piece,,,50,,,0,false,false
+PKG-click-biscuit-rs-10-016,Click Biscuit (Rs. 10 pack),,,Biscuit,Peak Freans,Piece,,,10,,,0,false,false
+PKG-marie-biscuit-rs-50-017,Marie Biscuit (Rs. 50 pack),,,Biscuit,Peak Freans,Piece,,,50,,,0,false,false
+PKG-peanut-pik-biscuit-rs-50-018,Peanut Pik Biscuit (Rs. 50 pack),,,Biscuit,Peak Freans,Piece,,,50,,,0,false,false
+PKG-peanut-pik-biscuit-rs-20-019,Peanut Pik Biscuit (Rs. 20 pack),,,Biscuit,Peak Freans,Piece,,,20,,,0,false,false
+PKG-peanut-pik-biscuit-rs-10-020,Peanut Pik Biscuit (Rs. 10 pack),,,Biscuit,Peak Freans,Piece,,,10,,,0,false,false
+PKG-party-pik-biscuit-rs-50-021,Party Pik Biscuit (Rs. 50 pack),,,Biscuit,Peak Freans,Piece,,,50,,,0,false,false
+PKG-gluco-biscuit-rs-50-022,Gluco Biscuit (Rs. 50 pack),,,Biscuit,Peak Freans,Piece,,,50,,,0,false,false
+PKG-gluco-biscuit-rs-20-023,Gluco Biscuit (Rs. 20 pack),,,Biscuit,Peak Freans,Piece,,,20,,,0,false,false
+PKG-gluco-biscuit-rs-10-024,Gluco Biscuit (Rs. 10 pack),,,Biscuit,Peak Freans,Piece,,,10,,,0,false,false
+PKG-sandwich-lemon-biscuit-rs-50-025,Sandwich Lemon Biscuit (Rs. 50 pack),,,Biscuit,Peak Freans,Piece,,,50,,,0,false,false
+PKG-sandwich-lemon-biscuit-rs-20-026,Sandwich Lemon Biscuit (Rs. 20 pack),,,Biscuit,Peak Freans,Piece,,,20,,,0,false,false
+PKG-sandwich-lemon-biscuit-rs-10-027,Sandwich Lemon Biscuit (Rs. 10 pack),,,Biscuit,Peak Freans,Piece,,,10,,,0,false,false
+PKG-chocolate-sandwich-biscuit-rs-50-028,Chocolate Sandwich Biscuit (Rs. 50 pack),,,Biscuit,Peak Freans,Piece,,,50,,,0,false,false
+PKG-chocolate-sandwich-biscuit-rs-20-029,Chocolate Sandwich Biscuit (Rs. 20 pack),,,Biscuit,Peak Freans,Piece,,,20,,,0,false,false
+PKG-chocolate-sandwich-biscuit-rs-10-030,Chocolate Sandwich Biscuit (Rs. 10 pack),,,Biscuit,Peak Freans,Piece,,,10,,,0,false,false
+PKG-choco-lava-biscuit-rs-40-031,Choco Lava Biscuit (Rs. 40 pack),,,Biscuit,Peak Freans,Piece,,,40,,,0,false,false
+PKG-chocolicious-biscuit-rs-30-032,Chocolicious Biscuit (Rs. 30 pack),,,Biscuit,Peak Freans,Piece,,,30,,,0,false,false
+PKG-choco-bites-biscuit-rs-40-033,Choco Bites Biscuit (Rs. 40 pack),,,Biscuit,Peak Freans,Piece,,,40,,,0,false,false
+PKG-teddy-cream-cake-rs-50-034,Teddy Cream Cake (Rs. 50 pack),,,Cake,Peak Freans,Piece,,,50,,,0,false,false
+PKG-teddy-chocolate-cake-rs-50-035,Teddy Chocolate Cake (Rs. 50 pack),,,Cake,Peak Freans,Piece,,,50,,,0,false,false
+PKG-super-classic-cake-rs-40-036,Super Classic Cake (Rs. 40 pack),,,Cake,Peak Freans,Piece,,,40,,,0,false,false
+PKG-super-chocolate-cake-rs-40-037,Super Chocolate Cake (Rs. 40 pack),,,Cake,Peak Freans,Piece,,,40,,,0,false,false
+PKG-donut-strawberry-cake-rs-50-038,Donut Strawberry Cake (Rs. 50 pack),,,Cake,Peak Freans,Piece,,,50,,,0,false,false
+PKG-donut-chocolate-cake-rs-50-039,Donut Chocolate Cake (Rs. 50 pack),,,Cake,Peak Freans,Piece,,,50,,,0,false,false
+PKG-triple-chocolate-cake-rs-60-040,Triple Chocolate Cake (Rs. 60 pack),,,Cake,Peak Freans,Piece,,,60,,,0,false,false
+PKG-cup-cake-strawberry-rs-30-041,Cup Cake - Strawberry (Rs. 30 pack),,,Cake,Peak Freans,Piece,,,30,,,0,false,false
+PKG-cup-cake-caramel-rs-30-042,Cup Cake - Caramel (Rs. 30 pack),,,Cake,Peak Freans,Piece,,,30,,,0,false,false
+PKG-cup-cake-chocolate-rs-30-043,Cup Cake - Chocolate (Rs. 30 pack),,,Cake,Peak Freans,Piece,,,30,,,0,false,false
+PKG-prince-rs-50-044,Prince (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-prince-rs-20-045,Prince (Rs. 20 pack),,,Biscuit,LU,Piece,,,20,,,0,false,false
+PKG-mini-fingers-rs-20-046,Mini Fingers (Rs. 20 pack),,,Biscuit,LU,Piece,,,20,,,0,false,false
+PKG-tuc-rs-50-047,Tuc (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-tuc-rs-20-048,Tuc (Rs. 20 pack),,,Biscuit,LU,Piece,,,20,,,0,false,false
+PKG-tuc-rs-10-049,Tuc (Rs. 10 pack),,,Biscuit,LU,Piece,,,10,,,0,false,false
+PKG-oreo-rs-50-050,Oreo (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-oreo-rs-40-051,Oreo (Rs. 40 pack),,,Biscuit,LU,Piece,,,40,,,0,false,false
+PKG-oreo-rs-30-052,Oreo (Rs. 30 pack),,,Biscuit,LU,Piece,,,30,,,0,false,false
+PKG-oreo-chocolate-rs-50-053,Oreo Chocolate (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-candy-rs-50-054,Candy (Rs. 50 pack),,,Confectionery,LU,Piece,,,50,,,0,false,false
+PKG-candy-rs-20-055,Candy (Rs. 20 pack),,,Confectionery,LU,Piece,,,20,,,0,false,false
+PKG-candy-rs-10-056,Candy (Rs. 10 pack),,,Confectionery,LU,Piece,,,10,,,0,false,false
+PKG-gala-rs-50-057,Gala (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-gala-rs-40-058,Gala (Rs. 40 pack),,,Biscuit,LU,Piece,,,40,,,0,false,false
+PKG-gala-rs-30-059,Gala (Rs. 30 pack),,,Biscuit,LU,Piece,,,30,,,0,false,false
+PKG-gala-rs-20-060,Gala (Rs. 20 pack),,,Biscuit,LU,Piece,,,20,,,0,false,false
+PKG-gala-rs-10-061,Gala (Rs. 10 pack),,,Biscuit,LU,Piece,,,10,,,0,false,false
+PKG-zeera-rs-50-062,Zeera (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-zeera-rs-20-063,Zeera (Rs. 20 pack),,,Biscuit,LU,Piece,,,20,,,0,false,false
+PKG-zeera-rs-10-064,Zeera (Rs. 10 pack),,,Biscuit,LU,Piece,,,10,,,0,false,false
+PKG-coconut-bakeri-rs-50-065,Coconut Bakeri (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-butter-bakeri-rs-50-066,Butter Bakeri (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-bistiks-bakeri-rs-50-067,Bistiks Bakeri (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-nankhatai-rs-50-068,Nankhatai (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-nankhatai-rs-20-069,Nankhatai (Rs. 20 pack),,,Biscuit,LU,Piece,,,20,,,0,false,false
+PKG-nankhatai-rs-10-070,Nankhatai (Rs. 10 pack),,,Biscuit,LU,Piece,,,10,,,0,false,false
+PKG-wheatable-rs-50-071,Wheatable (Rs. 50 pack),,,Confectionery,LU,Piece,,,50,,,0,false,false
+PKG-wheatable-rs-20-072,Wheatable (Rs. 20 pack),,,Confectionery,LU,Piece,,,20,,,0,false,false
+PKG-tiger-rs-10-073,Tiger (Rs. 10 pack),,,Biscuit,LU,Piece,,,10,,,0,false,false
+PKG-milkolu-rs-20-074,Milkolu (Rs. 20 pack),,,Biscuit,LU,Piece,,,20,,,0,false,false
+PKG-milkolu-rs-40-075,Milkolu (Rs. 40 pack),,,Biscuit,LU,Piece,,,40,,,0,false,false
+PKG-elaichi-rs-50-076,Elaichi (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-elaichi-rs-20-077,Elaichi (Rs. 20 pack),,,Biscuit,LU,Piece,,,20,,,0,false,false
+PKG-cookies-rs-50-078,Cookies (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-cream-choc-rs-50-079,Cream & Choc (Rs. 50 pack),,,Biscuit,LU,Piece,,,50,,,0,false,false
+PKG-cocomos-strawberry-rs-10-080,Cocomos Strawberry (Rs. 10 pack),,,Biscuit,Bisconni,Piece,,,10,,,0,false,false
+PKG-cocomos-vanilla-rs-10-081,Cocomos Vanilla (Rs. 10 pack),,,Biscuit,Bisconni,Piece,,,10,,,0,false,false
+PKG-cocomos-vanilla-rs-50-082,Cocomos Vanilla (Rs. 50 pack),,,Biscuit,Bisconni,Piece,,,50,,,0,false,false
+PKG-cocomos-vanilla-rs-100-083,Cocomos Vanilla (Rs. 100 pack),,,Biscuit,Bisconni,Piece,,,100,,,0,false,false
+PKG-cocomos-chocolate-rs-10-084,Cocomos Chocolate (Rs. 10 pack),,,Biscuit,Bisconni,Piece,,,10,,,0,false,false
+PKG-cocomos-chocolate-rs-20-085,Cocomos Chocolate (Rs. 20 pack),,,Biscuit,Bisconni,Piece,,,20,,,0,false,false
+PKG-cocomos-chocolate-rs-50-086,Cocomos Chocolate (Rs. 50 pack),,,Biscuit,Bisconni,Piece,,,50,,,0,false,false
+PKG-cocomos-chocolate-rs-100-087,Cocomos Chocolate (Rs. 100 pack),,,Biscuit,Bisconni,Piece,,,100,,,0,false,false
+PKG-chocolato-biscuit-rs-10-088,Chocolato Biscuit (Rs. 10 pack),,,Biscuit,Bisconni,Piece,,,10,,,0,false,false
+PKG-chocolato-biscuit-rs-20-089,Chocolato Biscuit (Rs. 20 pack),,,Biscuit,Bisconni,Piece,,,20,,,0,false,false
+PKG-chocolato-biscuit-rs-30-090,Chocolato Biscuit (Rs. 30 pack),,,Biscuit,Bisconni,Piece,,,30,,,0,false,false
+PKG-daydream-biscuit-rs-30-091,Daydream Biscuit (Rs. 30 pack),,,Biscuit,Bisconni,Piece,,,30,,,0,false,false
+PKG-rite-biscuit-rs-10-092,Rite Biscuit (Rs. 10 pack),,,Biscuit,Bisconni,Piece,,,10,,,0,false,false
+PKG-rite-biscuit-rs-30-093,Rite Biscuit (Rs. 30 pack),,,Biscuit,Bisconni,Piece,,,30,,,0,false,false
+PKG-novita-wafer-rs-10-094,Novita Wafer (Rs. 10 pack),,,Cake,Bisconni,Piece,,,10,,,0,false,false
+PKG-novita-wafer-rs-20-095,Novita Wafer (Rs. 20 pack),,,Cake,Bisconni,Piece,,,20,,,0,false,false
+PKG-novita-wafer-rs-40-096,Novita Wafer (Rs. 40 pack),,,Cake,Bisconni,Piece,,,40,,,0,false,false
+PKG-chocolate-chip-biscuit-rs-10-097,Chocolate Chip Biscuit (Rs. 10 pack),,,Biscuit,Bisconni,Piece,,,10,,,0,false,false
+PKG-chocolate-chip-biscuit-rs-30-098,Chocolate Chip Biscuit (Rs. 30 pack),,,Biscuit,Bisconni,Piece,,,30,,,0,false,false
+PKG-flo-chocolate-coated-cake-rs-10-099,Flo Chocolate Coated Cake (Rs. 10 pack),,,Cake,Bisconni,Piece,,,10,,,0,false,false
+PKG-chai-wala-cake-rs-20-100,Chai Wala Cake (Rs. 20 pack),,,Cake,Bisconni,Piece,,,20,,,0,false,false
+PKG-chai-wala-cake-rs-40-101,Chai Wala Cake (Rs. 40 pack),,,Cake,Bisconni,Piece,,,40,,,0,false,false
+PKG-cake-rusk-rs-20-102,Cake Rusk (Rs. 20 pack),,,Cake,Bisconni,Piece,,,20,,,0,false,false
+PKG-cake-rusk-rs-40-103,Cake Rusk (Rs. 40 pack),,,Cake,Bisconni,Piece,,,40,,,0,false,false
+PKG-fruit-gala-toffee-rs-2-104,Fruit Gala Toffee (Rs. 2 pack),,,Confectionery,Mayfair,Piece,,,2,,,0,false,false
+PKG-fruit-gala-toffee-rs-5-105,Fruit Gala Toffee (Rs. 5 pack),,,Confectionery,Mayfair,Piece,,,5,,,0,false,false
+PKG-creamer-rs-2-106,Creamer (Rs. 2 pack),,,Confectionery,Mayfair,Piece,,,2,,,0,false,false
+PKG-creamer-rs-5-107,Creamer (Rs. 5 pack),,,Confectionery,Mayfair,Piece,,,5,,,0,false,false
+PKG-frooto-rs-1-108,Frooto (Rs. 1 pack),,,Confectionery,Mayfair,Piece,,,1,,,0,false,false
+PKG-frooto-rs-2-109,Frooto (Rs. 2 pack),,,Confectionery,Mayfair,Piece,,,2,,,0,false,false
+PKG-chaska-rs-2-110,Chaska (Rs. 2 pack),,,Confectionery,Mayfair,Piece,,,2,,,0,false,false
+PKG-chaska-rs-5-111,Chaska (Rs. 5 pack),,,Confectionery,Mayfair,Piece,,,5,,,0,false,false
+PKG-eclairs-rs-5-112,Eclairs (Rs. 5 pack),,,Confectionery,Mayfair,Piece,,,5,,,0,false,false
+PKG-racing-sour-toffees-rs-1-113,Racing Sour Toffees (Rs. 1 pack),,,Confectionery,Mayfair,Piece,,,1,,,0,false,false
+PKG-tiger-bubble-rs-1-114,Tiger Bubble (Rs. 1 pack),,,Confectionery,Mayfair,Piece,,,1,,,0,false,false
+PKG-tiger-bubble-rs-2-115,Tiger Bubble (Rs. 2 pack),,,Confectionery,Mayfair,Piece,,,2,,,0,false,false
+PKG-wow-cocomos-rs-5-116,Wow Cocomos (Rs. 5 pack),,,Confectionery,Mayfair,Piece,,,5,,,0,false,false
+PKG-cremo-biscuit-rs-10-117,Cremo Biscuit (Rs. 10 pack),,,Biscuit,Mayfair,Piece,,,10,,,0,false,false
+PKG-hearts-biscuit-rs-10-118,Hearts Biscuit (Rs. 10 pack),,,Biscuit,Mayfair,Piece,,,10,,,0,false,false
+PKG-special-biscuit-rs-10-119,Special Biscuit (Rs. 10 pack),,,Biscuit,Mayfair,Piece,,,10,,,0,false,false
+PKG-special-biscuit-rs-20-120,Special Biscuit (Rs. 20 pack),,,Biscuit,Mayfair,Piece,,,20,,,0,false,false
+PKG-special-biscuit-rs-40-121,Special Biscuit (Rs. 40 pack),,,Biscuit,Mayfair,Piece,,,40,,,0,false,false
+PKG-mayfair-bubble-rs-5-122,Mayfair Bubble (Rs. 5 pack),,,Confectionery,Mayfair,Piece,,,5,,,0,false,false

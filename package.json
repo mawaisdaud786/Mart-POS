@@ -7,11 +7,14 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev --parallel",
-    "typecheck": "turbo run typecheck",
+    "build": "corepack pnpm -r --if-present --filter '!@retailos/desktop' run build",
+    "dev": "corepack pnpm --filter @retailos/api --filter @retailos/web --parallel run dev",
+    "desktop:dev": "corepack pnpm --dir apps/desktop dev",
+    "desktop:build": "corepack pnpm --dir apps/desktop build",
+    "desktop:package": "corepack pnpm --dir apps/desktop package",
+    "typecheck": "corepack pnpm -r --if-present run typecheck",
     "lint": "eslint .",
-    "test": "turbo run test",
+    "test": "corepack pnpm -r --if-present run test",
     "format": "prettier --write ."
   },
   "devDependencies": {

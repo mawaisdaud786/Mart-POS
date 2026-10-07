@@ -1,5 +1,6 @@
 import { db, type Account, type Product } from './db';
 import { lineTotal, rangeIso } from './format';
+import { apiRequest } from './api';
 
 export interface ProfitSummary {
   salesCount: number;
@@ -102,57 +103,32 @@ export interface ReorderRow {
   product: Product;
   avgDaily: number;
   daysLeft: number | null;
+  reorderBy: string | null;
+  deliveryOn: string | null;
   reorderPoint: number;
   suggestedQty: number;
   suggestedPacks: number | null;
   status: ReorderStatus;
+  lastSaleDays?: number | null;
 }
 
-/**
- * Smart low-stock check. Average daily sale comes from the last 30 days.
- * Reorder point = daily sale × lead time + safety stock (2 days of sales, or min stock if higher).
- * Suggested order covers lead time + 7 days, rounded up to whole cartons when a pack size is set.
- */
-export async function reorderReport(defaultLeadDays: number, coverDays = 7): Promise<ReorderRow[]> {
-  const products = (await db.products.toArray()).filter((p) => p.active);
-  const suppliers = new Map((await db.suppliers.toArray()).map((s) => [s.id, s]));
-  const since = new Date(Date.now() - 30 * 86_400_000).toISOString();
-  const moves = await db.stockMoves.where('date').aboveOrEqual(since).toArray();
-  const sold = new Map<string, number>();
-  for (const m of moves) {
-    if (m.type === 'sale') sold.set(m.productId, (sold.get(m.productId) ?? 0) - m.qty);
-    if (m.type === 'return') sold.set(m.productId, (sold.get(m.productId) ?? 0) - m.qty);
-  }
-  return products.map((product) => {
-    const avgDaily = Math.max(0, (sold.get(product.id) ?? 0) / 30);
-    const lead = (product.supplierId && suppliers.get(product.supplierId)?.leadDays) || defaultLeadDays;
-    const safety = Math.max(product.minStock, avgDaily * 2);
-    const reorderPoint = avgDaily * lead + safety;
-    const daysLeft = avgDaily > 0 ? product.stock / avgDaily : null;
-    const target = avgDaily * (lead + coverDays) + safety;
-    let suggestedQty = Math.max(1, Math.ceil(target - product.stock));
-    let suggestedPacks: number | null = null;
-    if (suggestedQty > 0 && product.packSize && product.packSize > 1) {
-      suggestedPacks = Math.ceil(suggestedQty / product.packSize);
-      suggestedQty = suggestedPacks * product.packSize;
-    }
-    let status: ReorderStatus;
-    if (product.stock <= 0) status = 'order_now';
-    else if (avgDaily === 0 && product.minStock === 0) status = 'no_sales';
-    else if (product.stock <= avgDaily * lead || (product.minStock > 0 && product.stock <= product.minStock / 2)) status = 'order_now';
-    else if (product.stock <= reorderPoint) status = 'reorder_soon';
-    else status = 'ok';
-    const needsOrder = status === 'order_now' || status === 'reorder_soon';
-    return {
-      product,
-      avgDaily,
-      daysLeft,
-      reorderPoint,
-      suggestedQty: needsOrder ? suggestedQty : 0,
-      suggestedPacks: needsOrder ? suggestedPacks : null,
-      status,
-    };
+/** Server-aggregated stock forecast; live POS pages no longer load stock movements for this report. */
+export async function reorderReport(
+  defaultLeadDays: number,
+  options: { coverDays?: number; salesVelocityDays?: number; safetyStockDays?: number; lowStockDaysThreshold?: number } = {},
+): Promise<ReorderRow[]> {
+  const query = new URLSearchParams({
+    now: String(Date.now()),
+    tz: String(new Date().getTimezoneOffset()),
+    lead: String(defaultLeadDays),
+    cover: String(options.coverDays ?? 7),
+    velocityDays: String(options.salesVelocityDays ?? 30),
+    safetyDays: String(options.safetyStockDays ?? 2),
+    lowDays: String(options.lowStockDaysThreshold ?? 3),
+    rows: '1',
   });
+  const result = await apiRequest<{ rows: ReorderRow[] }>(`/shop/reports/reorder?${query}`);
+  return result.rows;
 }
 
 /** Units sold and profit per product in a range (top sellers). */
@@ -187,4 +163,107 @@ export async function serviceSummary(provider: string, from: string, to: string)
     fees: txns.reduce((s, t) => s + t.fee, 0),
     txns,
   };
+}
+
+export interface SalesSummary {
+  bills: number;
+  total: number;
+  returns: number;
+  unitsSold: number;
+}
+
+export interface ProductPerformance {
+  productId: string;
+  name: string;
+  qty: number;
+  revenue: number;
+  cost: number;
+  profit: number;
+  currentCost: number;
+  salePrice: number;
+  currentProfitPerUnit: number;
+  currentProfitPercent: number;
+  currentMarginPercent: number;
+  historicalProfitPercent: number;
+  historicalMarginPercent: number;
+  belowCost: boolean;
+  lowMargin: boolean;
+}
+
+export interface ProductPair {
+  productAId: string;
+  productAName: string;
+  productAQty: number;
+  productBId: string;
+  productBName: string;
+  productBQty: number;
+  bills: number;
+}
+
+export async function productPairs(from: string, to: string): Promise<ProductPair[]> {
+  const [start, end] = rangeIso(from, to);
+  const query = new URLSearchParams({ start, end, limit: '100' });
+  return apiRequest<ProductPair[]>(`/shop/reports/product-pairs?${query}`);
+}
+
+/** Server-aggregated product margins and sales performance for the requested inclusive days. */
+export async function productPerformance(from: string, to: string, minimumMarginPct: number): Promise<ProductPerformance[]> {
+  const [start, end] = rangeIso(from, to);
+  const query = new URLSearchParams({ start, end, minimumMarginPct: String(minimumMarginPct) });
+  return apiRequest<ProductPerformance[]>(`/shop/reports/product-performance?${query}`);
+}
+
+export interface DailySalesPoint {
+  count: number;
+  total: number;
+}
+
+/** Completed sales totals for several date ranges in a single report request. */
+export async function dailySales(ranges: [string, string][]): Promise<DailySalesPoint[]> {
+  const query = new URLSearchParams({ ranges: JSON.stringify(ranges) });
+  return apiRequest<DailySalesPoint[]>(`/shop/reports/daily-sales?${query}`);
+}
+
+/** Bills in a local-day range, newest first; optionally restrict to one seller. */
+export async function salesInRange(from: string, to: string, limit?: number, userId?: string): Promise<import('@retailos/domain').Sale[]> {
+  const [start, end] = rangeIso(from, to);
+  const sales = await db.sales.where('date').between(start, end, true, true).toArray();
+  return sales
+    .filter((sale) => !userId || sale.userId === userId)
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, limit);
+}
+
+/** Completed bill totals and returned value for a local-day range. */
+export async function salesSummary(from: string, to: string, userId?: string): Promise<SalesSummary> {
+  const [start, end] = rangeIso(from, to);
+  const [sales, returns] = await Promise.all([
+    db.sales.where('date').between(start, end, true, true).toArray(),
+    db.saleReturns.where('date').between(start, end, true, true).toArray(),
+  ]);
+  const visible = sales.filter((sale) => !userId || sale.userId === userId);
+  const soldUnits = visible
+    .filter((sale) => sale.status === 'completed')
+    .reduce((sum, sale) => sum + sale.items.reduce((units, item) => units + item.qty, 0), 0);
+  const returnedUnits = returns
+    .filter((saleReturn) => !userId || saleReturn.userId === userId)
+    .reduce((sum, saleReturn) => sum + saleReturn.items.reduce((units, item) => units + item.qty, 0), 0);
+  return {
+    bills: visible.filter((sale) => sale.status === 'completed').length,
+    total: visible.filter((sale) => sale.status === 'completed').reduce((sum, sale) => sum + sale.total, 0),
+    returns: visible.reduce((sum, sale) => sum + sale.returnedTotal, 0),
+    unitsSold: Math.max(0, soldUnits - returnedUnits),
+  };
+}
+
+/** Units sold per product within the requested rolling period. */
+export async function salesVelocity(since: string): Promise<Record<string, number>> {
+  const sales = (await db.sales.where('date').aboveOrEqual(since).toArray()).filter((sale) => sale.status === 'completed');
+  const velocity: Record<string, number> = {};
+  for (const sale of sales) {
+    for (const item of sale.items) {
+      velocity[item.productId] = (velocity[item.productId] ?? 0) + Math.max(0, item.qty - item.returnedQty);
+    }
+  }
+  return velocity;
 }

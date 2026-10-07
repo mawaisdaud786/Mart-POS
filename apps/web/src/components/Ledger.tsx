@@ -1,6 +1,8 @@
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useState } from 'react';
+import { useLiveQuery } from '../lib/store';
 import { db, type PartyEntry } from '../lib/db';
 import { fmtDateTime, rs } from '../lib/format';
+import { compareListValues, ListControls } from './ListControls';
 import { Badge, Empty, cx, td, th } from './ui';
 
 const LABEL: Record<PartyEntry['type'], string> = {
@@ -14,16 +16,39 @@ const LABEL: Record<PartyEntry['type'], string> = {
 
 /** Khata statement with running balance (oldest first). */
 export function LedgerTable({ partyType, partyId }: { partyType: 'customer' | 'supplier'; partyId: string }) {
+  const [search, setSearch] = useState('');
+  const [entryType, setEntryType] = useState('all');
+  const [sortBy, setSortBy] = useState<'oldest' | 'newest' | 'amount'>('oldest');
   const entries =
     useLiveQuery(() => db.partyEntries.where('[partyType+partyId]').equals([partyType, partyId]).sortBy('date'), [partyType, partyId]) ?? [];
-  if (entries.length === 0) return <Empty title="No entries yet" />;
   let running = 0;
-  const rows = entries.map((e) => {
+  const allRows = entries.map((e) => {
     running += e.amount;
     return { e, balance: running };
   });
+  const query = search.trim().toLocaleLowerCase();
+  const rows = allRows
+    .filter(({ e }) => entryType === 'all' || e.type === entryType)
+    .filter(({ e }) => !query || LABEL[e.type].toLocaleLowerCase().includes(query) || (e.note ?? '').toLocaleLowerCase().includes(query) || fmtDateTime(e.date).toLocaleLowerCase().includes(query))
+    .sort((a, b) => sortBy === 'amount'
+      ? Math.abs(b.e.amount) - Math.abs(a.e.amount)
+      : sortBy === 'newest'
+        ? b.e.date.localeCompare(a.e.date)
+        : sortBy === 'oldest'
+          ? a.e.date.localeCompare(b.e.date)
+          : compareListValues(a.e.date, b.e.date));
   return (
-    <table className="w-full">
+    <>
+    <ListControls
+      search={search}
+      onSearch={setSearch}
+      placeholder="Search entry detail or date…"
+      filters={[{ label: 'Entry type', value: entryType, options: [{ value: 'all', label: 'All entries' }, ...Object.entries(LABEL).map(([value, label]) => ({ value, label }))], onChange: setEntryType }]}
+      sortValue={sortBy}
+      sortOptions={[{ value: 'oldest', label: 'Date · oldest first' }, { value: 'newest', label: 'Date · newest first' }, { value: 'amount', label: 'Amount · highest' }]}
+      onSort={(value) => setSortBy(value as typeof sortBy)}
+    />
+    {entries.length === 0 ? <Empty title="No entries yet" /> : rows.length === 0 ? <Empty title="No matching entries" /> : <table className="w-full">
       <thead className="bg-slate-50">
         <tr>
           <th className={th}>Date</th>
@@ -46,6 +71,7 @@ export function LedgerTable({ partyType, partyId }: { partyType: 'customer' | 's
           </tr>
         ))}
       </tbody>
-    </table>
+    </table>}
+    </>
   );
 }

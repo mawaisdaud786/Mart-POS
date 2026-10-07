@@ -171,6 +171,10 @@ export const syncRoutes: FastifyPluginAsyncZod = async (app) => {
         .sort((a, b) => a.serverSeq - b.serverSeq)
         .map((row) => {
           const data = loaded.get(`${row.entityType}|${row.entityId}`) ?? null;
+          if (data && row.entityType === 'inventory_balance' && !canViewInventoryCost(ctx)) {
+            delete data.avgCost;
+            delete data.stockValue;
+          }
           return {
             seq: row.serverSeq,
             entity: row.entityType as PullableEntity,
@@ -200,9 +204,19 @@ export const syncRoutes: FastifyPluginAsyncZod = async (app) => {
           const handler = HANDLERS[entity];
           if (handler.loadAll) entities[entity] = await handler.loadAll(tdb, ctx.device!.branchId);
         }
+        if (!canViewInventoryCost(ctx)) {
+          for (const balance of entities.inventory_balance ?? []) {
+            delete balance.avgCost;
+            delete balance.stockValue;
+          }
+        }
         return { cursor: counter[0]?.lastSeq ?? 0, entities, serverTime: new Date().toISOString() };
       },
       { isolationLevel: 'repeatable read', withConsistentSnapshot: true, accessMode: 'read only' },
     );
   });
 };
+
+function canViewInventoryCost(ctx: RequestContext): boolean {
+  return ctx.permissions.has('products.view_cost') || ctx.permissions.has('inventory.view_value');
+}

@@ -11,3 +11,7 @@ storage/
 playwright-report/
 test-results/
 .tools/
+
+# cPanel deployment bundle (generated)
+apps/api/cpanel/
+apps/web/cpanel/

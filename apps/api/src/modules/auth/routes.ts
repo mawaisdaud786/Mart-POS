@@ -156,6 +156,7 @@ export const authRoutes: FastifyPluginAsyncZod = async (app) => {
   );
 
   app.post('/logout', { schema: { response: { 200: z.object({ ok: z.boolean() }) } } }, async (request, reply) => {
+    if (request.headers['x-requested-with'] !== 'retailos') throw new AppError(403, 'CSRF', 'Missing request header');
     const token = request.cookies[REFRESH_COOKIE];
     if (token) {
       const row = (await app.db.select().from(refreshTokens).where(eq(refreshTokens.tokenHash, hashToken(token))))[0];

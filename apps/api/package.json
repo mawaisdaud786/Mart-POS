@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
-    "build": "esbuild src/server.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/server.js",
+    "build": "esbuild src/server.ts --bundle --platform=node --format=esm --external:@node-rs/argon2 --external:@node-rs/argon2-win32-x64-msvc --banner:js=\"import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);\" --outfile=dist/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:db": "vitest run test/reports-db.test.ts",
+    "package:cpanel": "node scripts/package-cpanel.mjs",
+    "cli": "tsx src/cli.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.2",
@@ -16,6 +19,7 @@
     "@fastify/helmet": "^13.1.1",
     "@fastify/rate-limit": "^11.2.0",
     "@node-rs/argon2": "^2.2.1",
+    "@retailos/contracts": "workspace:*",
     "@retailos/db": "workspace:*",
     "@retailos/domain": "workspace:*",
     "dotenv": "^18.0.4",

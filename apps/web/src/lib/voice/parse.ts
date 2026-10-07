@@ -28,6 +28,8 @@ export interface ParsedItem {
   unit: UnitKey | null;
   /** Rupee price said with the product: "50 wale" → 50. */
   priceHint: number | null;
+  /** Spend amount in rupees: "sugar 100 rs" → 100. */
+  spendAmount: number | null;
   /** Pack size said after the quantity: "2 Coke 1.5 litre" → 1.5 l. */
   sizeHint: { value: number; unit: UnitKey } | null;
 }
@@ -42,7 +44,12 @@ export interface VoiceCommand {
   /** "500 ka saman" → 500 (rupees). */
   amount: number | null;
   paymentMethod: 'cash' | 'credit' | null;
+  /** True only when an explicit checkout command was spoken. */
+  payNow: boolean;
 }
+
+const PAY_WORDS = new Set(['payment', 'checkout']);
+const PAY_VERBS = new Set(['kar', 'karo', 'kro', 'kardo', 'krdo', 'karein', 'karen', 'kardain', 'kardena', 'کر', 'کرو', 'کریں', 'करो']);
 
 const URDU_DIGITS: Record<string, string> = {
   '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4', '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9',
@@ -56,6 +63,7 @@ export function tokenize(text: string): string[] {
   // "1.5l" → "1.5 l", "rs50" → "rs 50", "50wale" → "50 wale"
   s = s.replace(/(\d)([^\d\s.,])/g, '$1 $2').replace(/([^\d\s.,])(\d)/g, '$1 $2');
   s = s.replace(/,/g, ' , ').replace(/[^\p{L}\p{N}.,&+\s]/gu, ' ');
+  s = s.replace(/\b(?:d?ouble)\s+a\b/g, ' aa ');
   return s
     .split(/\s+/)
     .map((t) => t.replace(/^\.+|\.+$/g, ''))
@@ -105,19 +113,39 @@ function isVerbDo(tokens: string[], i: number): boolean {
   return prev === 'de' || prev === 'likh' || prev === 'kar' || next === undefined || SEPARATORS.has(next) || (FILLERS.has(next) && !isUnit(next));
 }
 
-export function parseCommand(text: string, options: { detectCustomer?: boolean } = {}): VoiceCommand {
+export function parseCommand(
+  text: string,
+  options: {
+    detectCustomer?: boolean;
+    customerPrefixLength?: number;
+    shouldStartNewProduct?: (currentNameTokens: string[], nextToken: string) => boolean;
+  } = {},
+): VoiceCommand {
   const raw = tokenize(text);
   const tokens = raw.filter((_, i) => !isVerbDo(raw, i));
   let payment: VoiceCommand['paymentMethod'] = null;
+  let payNow = false;
   const used = new Array(tokens.length).fill(false);
 
   // 1. Payment words anywhere: "udhaar pe", "credit pe", "cash mein", "khate mein".
   tokens.forEach((t, i) => {
-    if (CREDIT_WORDS.has(t)) {
+    const spokenPayParticle =
+      t === 'pe' &&
+      !CREDIT_WORDS.has(tokens[i - 1] ?? '') &&
+      !CASH_WORDS.has(tokens[i - 1] ?? '') &&
+      (i === tokens.length - 1 || PAY_VERBS.has(tokens[i + 1] ?? ''));
+    if (PAY_WORDS.has(t) || spokenPayParticle) {
+      payNow = true;
+      used[i] = true;
+      if (tokens[i - 1] === 'bill') used[i - 1] = true;
+      if (tokens[i + 1] === 'bill') used[i + 1] = true;
+      if (PAY_VERBS.has(tokens[i + 1] ?? '')) used[i + 1] = true;
+    } else if (CREDIT_WORDS.has(t)) {
       payment = 'credit';
       used[i] = true;
     } else if (CASH_WORDS.has(t)) {
       payment = 'cash';
+      payNow = true;
       used[i] = true;
     }
   });
@@ -125,7 +153,24 @@ export function parseCommand(text: string, options: { detectCustomer?: boolean }
   // 2. Customer at the start: "Malik Arif ka …", "Arif ke naam pe …", "Rashid ko …", "Ahmed ke khate mein …"
   let customerName: string | null = null;
   const marker = tokens.findIndex((t, i) => POSSESSIVE.has(t) && i >= 1 && i <= 4);
-  if (options.detectCustomer !== false && marker > 0 && tokens.slice(0, marker).every(isNameLike)) {
+  if (
+    options.detectCustomer !== false &&
+    options.customerPrefixLength &&
+    options.customerPrefixLength <= tokens.length &&
+    tokens.slice(0, options.customerPrefixLength).every(isNameLike)
+  ) {
+    const prefixLength = options.customerPrefixLength;
+    customerName = tokens.slice(0, prefixLength).join(' ');
+    for (let k = 0; k < prefixLength; k++) used[k] = true;
+    if (POSSESSIVE.has(tokens[prefixLength] ?? '')) {
+      used[prefixLength] = true;
+      const next = tokens[prefixLength + 1];
+      if (next === 'naam' || next === 'khate' || next === 'khata') {
+        payment ??= 'credit';
+        used[prefixLength + 1] = true;
+      }
+    }
+  } else if (options.detectCustomer !== false && marker > 0 && tokens.slice(0, marker).every(isNameLike)) {
     customerName = tokens.slice(0, marker).join(' ');
     for (let k = 0; k <= marker; k++) used[k] = true;
     const next = tokens[marker + 1];
@@ -162,6 +207,7 @@ export function parseCommand(text: string, options: { detectCustomer?: boolean }
         quantityGiven: cur.qty !== null,
         unit: cur.unit,
         priceHint: cur.priceHint,
+        spendAmount: cur.spendAmount,
         sizeHint: cur.sizeHint,
       });
     }
@@ -176,9 +222,9 @@ export function parseCommand(text: string, options: { detectCustomer?: boolean }
       flush();
       continue;
     }
-    // "rs 50" / "rupay 50" → price hint
+    // Explicit currency amounts are budgets; "50 wale" remains a variant price hint.
     if ((t === 'rs' || t === 'rupay' || t === 'rupees') && next !== undefined && numberValue(next) !== null) {
-      cur.priceHint = numberValue(next);
+      cur.spendAmount = numberValue(next);
       i++;
       continue;
     }
@@ -203,6 +249,11 @@ export function parseCommand(text: string, options: { detectCustomer?: boolean }
 
     if (value !== null) {
       const after = rest[i + 1 + consumed];
+      if (after && ['rs', 'rupay', 'rupaye', 'rupees', 'rupee', 'rupe', 'rupia'].includes(after)) {
+        cur.spendAmount = value;
+        i += 1 + consumed;
+        continue;
+      }
       if (after !== undefined && PRICE_MARKERS.has(after)) {
         cur.priceHint = value;
         i += 1 + consumed;
@@ -257,6 +308,7 @@ export function parseCommand(text: string, options: { detectCustomer?: boolean }
       continue;
     }
     if (FILLERS.has(t) || PRICE_MARKERS.has(t)) continue;
+    if (cur.nameTokens.length > 0 && options.shouldStartNewProduct?.(cur.nameTokens, t)) flush();
     cur.nameTokens.push(t);
   }
   flush();
@@ -266,11 +318,11 @@ export function parseCommand(text: string, options: { detectCustomer?: boolean }
       ? 'ADD_AMOUNT_TO_KHATA'
       : items.length > 0
         ? 'ADD_TO_BILL'
-        : payment || customerName
+        : payment || customerName || payNow
           ? 'SET_BILL_DETAILS'
           : 'UNKNOWN';
 
-  return { intent, text, customerName, items, amount, paymentMethod: payment };
+  return { intent, text, customerName, items, amount, paymentMethod: payment, payNow };
 }
 
 function newItem() {
@@ -280,6 +332,7 @@ function newItem() {
     unit: null as UnitKey | null,
     nameTokens: [] as string[],
     priceHint: null as number | null,
+    spendAmount: null as number | null,
     sizeHint: null as { value: number; unit: UnitKey } | null,
   };
 }
@@ -298,5 +351,6 @@ export function commandToJson(cmd: VoiceCommand) {
     })),
     ...(cmd.amount !== null ? { amount: cmd.amount } : {}),
     payment_method: cmd.paymentMethod,
+    pay_now: cmd.payNow,
   };
 }

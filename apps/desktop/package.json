@@ -1,0 +1,20 @@
+{
+  "name": "@retailos/desktop",
+  "description": "Karyana Shop desktop POS application for Windows",
+  "version": "0.1.0",
+  "author": "Al Noor Mart",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development electron .",
+    "build": "cross-env VITE_API_BASE_URL=http://127.0.0.1:4000/api/v1 corepack pnpm --dir ../web build && corepack pnpm --dir ../api build",
+    "package": "corepack pnpm run build && electron-builder --config electron-builder.config.js",
+    "package:dir": "corepack pnpm run build && electron-builder --config electron-builder.config.js --dir",
+    "test": "node --test test/*.test.cjs"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.0",
+    "electron": "^35.0.0",
+    "electron-builder": "^26.0.0"
+  }
+}

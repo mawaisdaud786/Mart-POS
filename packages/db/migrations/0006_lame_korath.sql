@@ -1,0 +1,1 @@
+ALTER TABLE `products` ADD CONSTRAINT `products_threshold_price_ck` CHECK (`products`.`threshold_price` is null or (`products`.`threshold_price` >= 0 and `products`.`threshold_price` <= `products`.`sale_price`));

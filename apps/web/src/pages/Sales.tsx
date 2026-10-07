@@ -1,43 +1,70 @@
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useLiveQuery } from '../lib/store';
 import { Ban, Eye, ReceiptText, Undo2 } from 'lucide-react';
 import { useState } from 'react';
+import { ListControls, compareListValues } from '../components/ListControls';
 import { ReceiptModal } from '../components/Receipt';
 import { Badge, Button, Card, Empty, Field, Input, Modal, PageHeader, Select, Stat, cx, td, th, useAction } from '../components/ui';
 import { ACCOUNT_IDS, db, type Sale } from '../lib/db';
-import { dayKey, fmtDateTime, qty, rangeIso, roundQty, rs } from '../lib/format';
+import { salesInRange, salesSummary } from '../lib/reports';
+import { dayKey, fmtDateTime, qty, roundQty, rs } from '../lib/format';
 import { returnSaleItems, returnValue, voidSale } from '../lib/ops';
 import { useSession, useUser } from '../lib/session';
 
+const PAGE = 100;
+
 export function SalesPage() {
-  const { can } = useSession();
+  const { can, has } = useSession();
   const user = useUser();
   const [from, setFrom] = useState(dayKey());
   const [to, setTo] = useState(dayKey());
   const [q, setQ] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortBy, setSortBy] = useState<'date' | 'total' | 'invoice' | 'customer'>('date');
   const [view, setView] = useState<Sale | null>(null);
   const [returning, setReturning] = useState<Sale | null>(null);
   const run = useAction();
+  const sellerId = has('sales.view_all') ? undefined : user.id;
 
+  const [pageSize, setPageSize] = useState(PAGE);
+  const query = q.trim().toLowerCase();
+  const searching = query !== '' || statusFilter !== 'all' || sortBy !== 'date';
+
+  // The stat cards are added up by the server over the whole range. The list shows the newest bills a page at a time;
+  // only while searching is the whole range loaded (so no match can be missed).
   const data = useLiveQuery(async () => {
-    const [start, end] = rangeIso(from, to);
-    let sales = await db.sales.where('date').between(start, end, true, true).reverse().sortBy('date');
-    // Cashiers see their own bills only.
-    if (user.role === 'cashier') sales = sales.filter((s) => s.userId === user.id);
-    const returns = await db.saleReturns.where('date').between(start, end, true, true).toArray();
-    const customers = new Map((await db.customers.toArray()).map((c) => [c.id, c.name]));
-    return { sales, returns, customers };
-  }, [from, to, user.id, user.role]);
+    const [list, totals, customers] = await Promise.all([
+      salesInRange(from, to, searching ? undefined : pageSize, sellerId),
+      salesSummary(from, to, sellerId),
+      db.customers.toArray(),
+    ]);
+    return { sales: list, totals, customers: new Map(customers.map((c) => [c.id, c.name])), more: !searching && list.length >= pageSize };
+  }, [from, to, sellerId, searching, pageSize]);
 
-  const sales = (data?.sales ?? []).filter((s) => !q || s.no.toLowerCase().includes(q.toLowerCase()) || data?.customers.get(s.customerId ?? '')?.toLowerCase().includes(q.toLowerCase()));
+  const sourceSales = data?.sales ?? [];
+  const sales = sourceSales
+    .filter((sale) => !query || sale.no.toLowerCase().includes(query) || data?.customers.get(sale.customerId ?? '')?.toLowerCase().includes(query))
+    .filter((sale) => statusFilter === 'all'
+      || (statusFilter === 'returned' ? sale.returnedTotal > 0
+        : statusFilter === 'credit' ? sale.credit > 0
+          : sale.status === statusFilter))
+    .sort((a, b) => sortBy === 'total'
+      ? b.total - a.total
+      : sortBy === 'invoice'
+        ? compareListValues(a.no, b.no)
+        : sortBy === 'customer'
+          ? compareListValues(data?.customers.get(a.customerId ?? '') ?? 'Walk-in', data?.customers.get(b.customerId ?? '') ?? 'Walk-in')
+          : b.date.localeCompare(a.date));
+  // With a search the cards describe the matching bills (as before); otherwise the server's totals for the range.
   const completed = sales.filter((s) => s.status === 'completed');
-  const total = completed.reduce((s, x) => s + x.total, 0);
-  const returnsTotal = (data?.returns ?? []).reduce((s, r) => s + r.amount, 0);
+  const billCount = searching ? completed.length : (data?.totals.bills ?? 0);
+  const total = searching ? completed.reduce((s, x) => s + x.total, 0) : (data?.totals.total ?? 0);
+  const returnsTotal = searching ? sales.reduce((sum, sale) => sum + sale.returnedTotal, 0) : (data?.totals.returns ?? 0);
 
   return (
     <div>
       <PageHeader title="Sales & Returns" subtitle="Find a bill, reprint it, return items or cancel it" />
       <div className="mb-4 grid gap-3 sm:grid-cols-3">
-        <Stat label="Bills" value={completed.length} />
+        <Stat label="Bills" value={billCount} />
         <Stat label="Sales" value={rs(total)} tone="green" />
         <Stat label="Returns" value={rs(returnsTotal)} tone="red" />
       </div>
@@ -49,10 +76,16 @@ export function SalesPage() {
           <Field label="To">
             <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
           </Field>
-          <Field label="Search" className="min-w-[200px] flex-1">
-            <Input placeholder="Invoice no. or customer" value={q} onChange={(e) => setQ(e.target.value)} />
-          </Field>
         </div>
+        <ListControls
+          search={q}
+          onSearch={setQ}
+          placeholder="Search invoice or customer…"
+          filters={[{ label: 'Sale status', value: statusFilter, options: [{ value: 'all', label: 'All statuses' }, { value: 'completed', label: 'Completed' }, { value: 'void', label: 'Cancelled' }, { value: 'returned', label: 'Has returns' }, { value: 'credit', label: 'Has udhaar' }], onChange: setStatusFilter }]}
+          sortValue={sortBy}
+          sortOptions={[{ value: 'date', label: 'Time · newest' }, { value: 'total', label: 'Total · highest' }, { value: 'invoice', label: 'Invoice · A–Z' }, { value: 'customer', label: 'Customer · A–Z' }]}
+          onSort={(value) => setSortBy(value as typeof sortBy)}
+        />
         {sales.length === 0 ? (
           <Empty icon={<ReceiptText size={40} />} title="No sales in this period" />
         ) : (
@@ -92,7 +125,7 @@ export function SalesPage() {
                       <Button size="sm" variant="ghost" onClick={() => setView(s)} title="View / print">
                         <Eye size={15} />
                       </Button>
-                      {s.status === 'completed' && (
+                      {s.status === 'completed' && has('sales.return') && (
                         <Button size="sm" variant="ghost" onClick={() => setReturning(s)} title="Return items">
                           <Undo2 size={15} />
                         </Button>
@@ -115,6 +148,13 @@ export function SalesPage() {
                 ))}
               </tbody>
             </table>
+            {data?.more && !searching && (
+              <div className="border-t border-slate-100 p-3 text-center">
+                <Button variant="secondary" onClick={() => setPageSize((n) => n + PAGE)}>
+                  Show older bills
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </Card>
@@ -157,7 +197,6 @@ function ReturnModal({ sale, onClose }: { sale: Sale; onClose: () => void }) {
                   refundTo,
                   accountId,
                   reason,
-                  userId: user.id,
                 });
                 onClose();
               }, 'Return saved, stock added back')

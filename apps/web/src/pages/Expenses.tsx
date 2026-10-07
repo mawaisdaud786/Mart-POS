@@ -1,6 +1,7 @@
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useLiveQuery } from '../lib/store';
 import { Trash2, Wallet } from 'lucide-react';
 import { useState } from 'react';
+import { ListControls, compareListValues } from '../components/ListControls';
 import { Badge, Button, Card, Empty, Field, Input, PageHeader, Select, Stat, MoneyInput, cx, td, th, useAction } from '../components/ui';
 import { ACCOUNT_IDS, DEFAULT_EXPENSE_CATEGORIES, db } from '../lib/db';
 import { dayKey, fmtDateTime, rangeIso, rs } from '../lib/format';
@@ -19,6 +20,9 @@ export function ExpensesPage() {
   const [accountId, setAccountId] = useState<string>(ACCOUNT_IDS.cash);
   const [note, setNote] = useState('');
   const [date, setDate] = useState(dayKey());
+  const [search, setSearch] = useState('');
+  const [listKind, setListKind] = useState<'all' | 'expense' | 'drawing'>('all');
+  const [sortBy, setSortBy] = useState<'date' | 'category' | 'amount'>('date');
 
   const list =
     useLiveQuery(async () => {
@@ -29,6 +33,15 @@ export function ExpensesPage() {
 
   const expenses = list.filter((e) => e.kind === 'expense');
   const drawings = list.filter((e) => e.kind === 'drawing');
+  const query = search.trim().toLocaleLowerCase();
+  const visibleEntries = [...list]
+    .filter((entry) => listKind === 'all' || entry.kind === listKind)
+    .filter((entry) => !query || entry.category.toLocaleLowerCase().includes(query) || (entry.note ?? '').toLocaleLowerCase().includes(query))
+    .sort((a, b) => {
+      if (sortBy === 'category') return compareListValues(a.category, b.category);
+      if (sortBy === 'amount') return b.amount - a.amount;
+      return b.date.localeCompare(a.date);
+    });
   const byCat = new Map<string, number>();
   for (const e of expenses) byCat.set(e.category, (byCat.get(e.category) ?? 0) + e.amount);
   const accName = (id: string) => accounts.find((a) => a.id === id)?.name ?? '';
@@ -37,7 +50,7 @@ export function ExpensesPage() {
     run(async () => {
       // Back-dated entries get noon of that day, so they land on the right date in reports.
       const when = date === dayKey() ? undefined : new Date(`${date}T12:00:00`).toISOString();
-      await addExpense({ kind, category: kind === 'drawing' ? 'Owner withdrawal' : category, amount, accountId, note, userId: user.id, ...(when ? { date: when } : {}) });
+      await addExpense({ kind, category: kind === 'drawing' ? 'Owner withdrawal' : category, amount, accountId, note, ...(when ? { date: when } : {}) });
       setAmount(0);
       setNote('');
     }, kind === 'drawing' ? 'Owner withdrawal saved' : 'Expense saved');
@@ -126,8 +139,19 @@ export function ExpensesPage() {
             </Card>
           )}
           <Card>
+            <ListControls
+              search={search}
+              onSearch={setSearch}
+              placeholder="Search category or note…"
+              filters={[{ label: 'Entry type', value: listKind, options: [{ value: 'all', label: 'All entries' }, { value: 'expense', label: 'Expenses' }, { value: 'drawing', label: 'Owner withdrawals' }], onChange: (value) => setListKind(value as typeof listKind) }]}
+              sortValue={sortBy}
+              sortOptions={[{ value: 'date', label: 'Date · newest' }, { value: 'amount', label: 'Amount · highest' }, { value: 'category', label: 'Category · A–Z' }]}
+              onSort={(value) => setSortBy(value as typeof sortBy)}
+            />
             {list.length === 0 ? (
               <Empty icon={<Wallet size={40} />} title="No expenses this month" />
+            ) : visibleEntries.length === 0 ? (
+              <Empty title="No matching entries" />
             ) : (
               <table className="w-full">
                 <thead className="bg-slate-50">
@@ -141,7 +165,7 @@ export function ExpensesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {list.map((e) => (
+                  {visibleEntries.map((e) => (
                     <tr key={e.id}>
                       <td className={cx(td, 'whitespace-nowrap text-slate-600')}>{fmtDateTime(e.date)}</td>
                       <td className={td}>{e.kind === 'drawing' ? <Badge tone="amber">Owner withdrawal</Badge> : e.category}</td>

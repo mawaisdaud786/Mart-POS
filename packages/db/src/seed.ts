@@ -18,7 +18,10 @@ console.log('Reference data seeded');
 
 const email = process.env.SEED_OWNER_EMAIL;
 const password = process.env.SEED_OWNER_PASSWORD;
-if (email && password) {
+if (process.env.NODE_ENV === 'production') {
+  // Never create real accounts from a password stored in an environment file.
+  console.log('NODE_ENV=production: skipped the first tenant. Use "node cli.js create-tenant" (hidden password prompt) instead.');
+} else if (email && password) {
   const existing = await db.select({ id: tenants.id }).from(tenants).where(eq(tenants.slug, 'al-noor-mart'));
   if (existing[0]) {
     console.log('Tenant al-noor-mart already exists');

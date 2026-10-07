@@ -14,6 +14,7 @@ export const URDU_WORDS: Record<string, string> = {
   کھاتے: 'khate', کھاتہ: 'khata', کھاتا: 'khata', نام: 'naam', میں: 'mein', پر: 'par', پہ: 'pe', پے: 'pe',
   کا: 'ka', کے: 'ke', کی: 'ki', کو: 'ko', اور: 'aur', والے: 'wale', والا: 'wala', والی: 'wali', روپے: 'rupay', روپیہ: 'rupay',
   سامان: 'saman', دینا: 'dena', دے: 'de', ہے: 'hai', ہیں: 'hain', چاہیے: 'chahiye', بھائی: 'bhai', جی: 'ji', صاحب: 'sahab',
+  چینی: 'cheeni',
   لکھ: 'likh', لکھو: 'likh',
 };
 
@@ -22,7 +23,7 @@ export const NUMBER_WORDS: Record<string, number> = {
   ek: 1, aik: 1, ik: 1, one: 1, do: 2, doo: 2, two: 2, teen: 3, tin: 3, three: 3, char: 4, chaar: 4, four: 4,
   panch: 5, paanch: 5, panj: 5, five: 5, chhe: 6, chay: 6, che: 6, chheh: 6, six: 6, saat: 7, sat: 7, seven: 7,
   aath: 8, aat: 8, eight: 8, nau: 9, nine: 9, das: 10, dus: 10, ten: 10, gyarah: 11, barah: 12, bara: 12, twelve: 12,
-  pandrah: 15, bees: 20, pachees: 25, tees: 30, chalees: 40, pachas: 50, pachaas: 50, sau: 100,
+  pandrah: 15, bees: 20, pachees: 25, tees: 30, chalees: 40, pachas: 50, pachaas: 50, sau: 100, hazaar: 1000, hazar: 1000, lakh: 100000, laakh: 100000, crore: 10000000,
 };
 
 /** Fractions that stand alone as a quantity ("aadha kilo" = 0.5 kg). */
@@ -64,13 +65,13 @@ export const UNIT_DIMENSION: Record<UnitKey, { dim: 'mass' | 'volume' | 'count';
   sack: { dim: 'count', base: 1 },
 };
 
-export const CREDIT_WORDS = new Set(['udhaar', 'udhar', 'udaar', 'udhaaar', 'udhari', 'credit', 'khata', 'khate', 'khatay', 'khaata', 'khaate', 'likh', 'likho', 'likhdo']);
+export const CREDIT_WORDS = new Set(['udhaar', 'udhar', 'udaar', 'udhaaar', 'udhari', 'credit', 'khata', 'khate', 'khatay', 'khaata', 'khaate', 'likh', 'likho', 'likhdo', 'idhaar', 'idhaar', 'idhar', 'udhar', 'udhaar', 'udhari', 'udharay', 'udhaari']);
 export const CASH_WORDS = new Set(['cash', 'naqd', 'naqad', 'nakad', 'nakd', 'kash']);
 /** Words that mark "price hint" after a number: "50 wale", "50 rupay". */
 export const PRICE_MARKERS = new Set(['wale', 'wala', 'wali', 'walay', 'waale', 'waala', 'waali', 'rupay', 'rupaye', 'rupees', 'rupee', 'rs', 'rupe', 'rupia']);
 export const POSSESSIVE = new Set(['ka', 'ke', 'ki', 'ko', 'kay']);
-export const SEPARATORS = new Set([',', 'aur', 'or', 'and', '&', '+', 'phir', 'saath']);
-export const AMOUNT_GOODS = new Set(['saman', 'samaan', 'saaman', 'sauda', 'soda', 'cheez', 'cheezein', 'cheezen', 'items', 'goods']);
+export const SEPARATORS = new Set([',', 'aur', 'or', 'and', '&', '+', 'phir', 'saath', 'ilawa', 'sath', 'saath', 'saath mein', 'saath me', 'saath mey', 'saath mey', 'saath mey', 'saath mey', 'saath mey', 'saath mey', 'saath mey', 'saath mey', 'saath mey', 'saath mey', 'saath mey', 'saath mey', 'saath mey', 'saath mey']);
+export const AMOUNT_GOODS = new Set(['saman', 'samaan', 'saaman', 'sauda', 'soda', 'cheez', 'cheezein', 'cheezen', 'items', 'goods', 'ration', 'maal', 'maalon', 'maal ka', 'maal ki', 'maal ke', 'maal ko']);
 
 /** Words that carry no product meaning. */
 export const FILLERS = new Set([
@@ -87,6 +88,7 @@ export const NAME_TITLES = new Set(['bhai', 'sahab', 'sahib', 'saab', 'ji', 'jee
 export const GENERIC_WORDS = new Set([
   'biscuit', 'biscuits', 'biskut', 'soap', 'sabun', 'powder', 'detergent', 'oil', 'tel', 'tea', 'chai', 'drink', 'cold',
   'family', 'pack', 'classic', 'small', 'large', 'big', 'chota', 'bara', 'bada', 'regular', 'new', 'masala', 'cream',
+  'battery', 'batteries', 'cell', 'cells',
 ]);
 
 /**
@@ -94,7 +96,7 @@ export const GENERIC_WORDS = new Set([
  * Both directions are added to a product's searchable words.
  */
 export const SYNONYMS: string[][] = [
-  ['sugar', 'cheeni', 'chini', 'cheni', 'shakar', 'چینی'],
+  ['sugar', 'cheeni', 'chini', 'cheni', 'ceni', 'چینی'],
   ['rice', 'chawal', 'chawl', 'chaawal', 'chaval', 'چاول'],
   ['milk', 'doodh', 'dudh', 'dood', 'دودھ'],
   ['eggs', 'egg', 'anday', 'ande', 'anda', 'andey', 'انڈے', 'انڈا'],
@@ -112,6 +114,7 @@ export const SYNONYMS: string[][] = [
   ['coke', 'cola', 'coca'],
   ['yogurt', 'dahi', 'دہی'],
   ['water', 'pani', 'paani', 'پانی'],
+  ['battery', 'batteries', 'cell', 'cells'],
 ];
 
 /** Basic Urdu letter → Roman transliteration, used only for fuzzy matching. */

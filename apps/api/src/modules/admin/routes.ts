@@ -1,8 +1,10 @@
 import { hash, verify } from '@node-rs/argon2';
+import { PASSWORD_MAX, passwordSchema } from '@retailos/contracts';
 import { newId } from '@retailos/domain';
 import { provisionTenant, schema } from '@retailos/db';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, sql } from 'drizzle-orm';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
+import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { invalidateContextCache } from '../../lib/context.js';
 import { AppError, conflict, notFound, unauthorized } from '../../lib/errors.js';
@@ -18,6 +20,8 @@ declare module 'fastify' {
 }
 
 const ADMIN_TOKEN_TTL = 3600;
+const ADMIN_MAX_FAILURES = 5;
+const ADMIN_LOCK_MINUTES = 15;
 const DUMMY_HASH = await hash('retailos-dummy-admin');
 
 const TenantSummary = z.object({
@@ -42,7 +46,7 @@ export const adminRoutes: FastifyPluginAsyncZod = async (app) => {
     '/auth/login',
     {
       schema: {
-        body: z.object({ email: z.email(), password: z.string().min(1), totp: z.string().regex(/^\d{6}$/) }),
+        body: z.object({ email: z.email().max(190), password: z.string().min(1).max(PASSWORD_MAX), totp: z.string().regex(/^\d{6}$/) }),
         response: { 200: z.object({ accessToken: z.string(), expiresIn: z.number(), name: z.string(), role: z.string() }) },
       },
       config: { rateLimit: { max: 5, timeWindow: '1 minute' } },
@@ -50,13 +54,32 @@ export const adminRoutes: FastifyPluginAsyncZod = async (app) => {
     async (request) => {
       const { email, password, totp } = request.body;
       const admin = (await app.db.select().from(platformAdmins).where(eq(platformAdmins.email, email.toLowerCase())))[0];
+      const userAgent = request.headers['user-agent']?.slice(0, 255) ?? null;
+
+      // Lock the account after repeated failures, whatever IP they come from. Unknown emails have no row to lock;
+      // they are covered by the per-IP rate limit.
+      if (admin) {
+        const since = new Date(Date.now() - ADMIN_LOCK_MINUTES * 60_000);
+        const [failed] = await app.db
+          .select({ n: sql<number>`count(*)` })
+          .from(platformAuditLogs)
+          .where(and(eq(platformAuditLogs.adminId, admin.id), eq(platformAuditLogs.action, 'admin.login_failed'), gte(platformAuditLogs.createdAt, since)));
+        if (Number(failed?.n ?? 0) >= ADMIN_MAX_FAILURES) {
+          throw new AppError(429, 'TOO_MANY_ATTEMPTS', `Too many failed attempts. Try again in ${ADMIN_LOCK_MINUTES} minutes.`);
+        }
+      }
+      const fail = async (reason: string, error: AppError) => {
+        if (admin) await app.db.insert(platformAuditLogs).values({ adminId: admin.id, action: 'admin.login_failed', after: { reason }, userAgent });
+        return error;
+      };
+
       const ok = await verify(admin?.passwordHash ?? DUMMY_HASH, password);
-      if (!admin || !ok || admin.status !== 'active') throw new AppError(401, 'INVALID_CREDENTIALS', 'Wrong email or password');
-      if (!admin.totpSecretEnc || !verifyTotp(app.encryptor.decrypt(Buffer.from(admin.totpSecretEnc)), totp)) {
-        throw new AppError(401, 'INVALID_TOTP', 'Wrong authenticator code');
+      if (!admin || !ok || admin.status !== 'active') throw await fail('password', new AppError(401, 'INVALID_CREDENTIALS', 'Wrong email or password'));
+      if (!admin.totpSecretEnc || !verifyTotp(app.encryptor.decryptFromText(String(admin.totpSecretEnc)), totp)) {
+        throw await fail('totp', new AppError(401, 'INVALID_TOTP', 'Wrong authenticator code'));
       }
       await app.db.update(platformAdmins).set({ lastLoginAt: new Date() }).where(eq(platformAdmins.id, admin.id));
-      await app.db.insert(platformAuditLogs).values({ adminId: admin.id, action: 'admin.login', userAgent: request.headers['user-agent']?.slice(0, 255) ?? null });
+      await app.db.insert(platformAuditLogs).values({ adminId: admin.id, action: 'admin.login', userAgent });
       return {
         accessToken: await signAdminToken(app.keys, { sub: admin.id, role: admin.role }, ADMIN_TOKEN_TTL),
         expiresIn: ADMIN_TOKEN_TTL,
@@ -66,7 +89,8 @@ export const adminRoutes: FastifyPluginAsyncZod = async (app) => {
     },
   );
 
-  await app.register(async (scope) => {
+  await app.register(async (rawScope) => {
+    const scope = rawScope.withTypeProvider<ZodTypeProvider>();
     scope.decorateRequest('admin', null as unknown as AdminClaims);
     scope.addHook('onRequest', async (request) => {
       const header = request.headers.authorization;
@@ -126,8 +150,12 @@ export const adminRoutes: FastifyPluginAsyncZod = async (app) => {
               name: z.string().trim().min(1).max(120),
               email: z.email().optional(),
               phone: z.string().trim().min(10).max(20).optional(),
-              password: z.string().min(8).max(200),
-            }).refine((o) => o.email || o.phone, 'Owner needs an email or a mobile number'),
+              password: z.string().max(PASSWORD_MAX),
+            }).superRefine((o, ctx) => {
+              if (!o.email && !o.phone) ctx.addIssue({ code: 'custom', message: 'Owner needs an email or a mobile number' });
+              const check = passwordSchema({ identity: [o.email, o.phone, o.name] }).safeParse(o.password);
+              if (!check.success) for (const issue of check.error.issues) ctx.addIssue({ code: 'custom', path: ['password'], message: issue.message });
+            }),
           }),
           response: { 200: z.object({ tenantId: z.string(), branchId: z.string(), ownerUserId: z.string() }) },
         },

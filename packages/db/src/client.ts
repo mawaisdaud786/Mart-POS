@@ -14,7 +14,11 @@ export interface DbHandle {
   close(): Promise<void>;
 }
 
-export function createDb(url: string, options: { connectionLimit?: number } = {}): DbHandle {
+/**
+ * `collation` is the connection collation. The default works on MySQL 8 and on MariaDB (common on cPanel);
+ * `utf8mb4_0900_ai_ci` only exists on MySQL 8, where it may be chosen with DB_COLLATION.
+ */
+export function createDb(url: string, options: { connectionLimit?: number; collation?: string } = {}): DbHandle {
   const pool = mysql.createPool({
     uri: url,
     connectionLimit: options.connectionLimit ?? 10,
@@ -23,7 +27,7 @@ export function createDb(url: string, options: { connectionLimit?: number } = {}
     dateStrings: false,
     supportBigNumbers: true,
     bigNumberStrings: false,
-    charset: 'utf8mb4_0900_ai_ci',
+    charset: options.collation ?? 'utf8mb4_unicode_ci',
   });
   pool.on('connection', (conn) => {
     conn.query("SET time_zone = '+00:00'");

@@ -1,32 +1,27 @@
-import { Store } from 'lucide-react';
 import { useState } from 'react';
 import { Button, Field, Input, MoneyInput, useAction } from '../components/ui';
-import { setupShop } from '../lib/db';
-import { loadDemoData } from '../lib/demo';
+import { setupShop } from '../lib/ops';
 
-/** First run: create the shop, the owner login and opening cash. */
+/** First run: save the shop profile and opening cash for the signed-in owner. */
 export function Setup() {
   const [shopName, setShopName] = useState('Al Noor Mart');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
-  const [ownerName, setOwnerName] = useState('');
-  const [pin, setPin] = useState('');
   const [openingCash, setOpeningCash] = useState(0);
-  const [demo, setDemo] = useState(true);
   const run = useAction();
 
-  const valid = shopName.trim() && ownerName.trim() && /^\d{4,6}$/.test(pin);
+  const valid = shopName.trim();
 
   return (
-    <div className="flex min-h-full items-center justify-center p-4">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-lg">
-        <div className="mb-5 flex items-center gap-3">
-          <div className="grid h-11 w-11 place-items-center rounded-xl bg-brand-600 text-white">
-            <Store />
+    <div className="flex min-h-full items-center justify-center bg-[#073b28] p-4 sm:p-8">
+      <div className="w-full max-w-xl rounded-[1.75rem] border border-white/70 bg-white p-6 shadow-2xl shadow-emerald-950/30 sm:p-8">
+        <div className="mb-6 flex items-center gap-4">
+          <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white p-0.5 shadow-sm ring-1 ring-emerald-900/10">
+            <img src="/al-noor-mart-logo.jpeg" alt="Al Noor Mart logo" className="h-full w-full rounded-xl object-contain" />
           </div>
-          <div>
-            <h1 className="text-xl font-bold">Welcome to RetailOS</h1>
-            <p className="text-sm text-slate-500">Set up your shop. Takes one minute.</p>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold tracking-tight text-emerald-950">Welcome to Al Noor Mart</h1>
+            <p className="mt-1 text-sm text-slate-500">Set up your shop. Takes one minute.</p>
           </div>
         </div>
         <div className="grid gap-4">
@@ -44,31 +39,17 @@ export function Setup() {
           <Field label="Address">
             <Input value={address} onChange={(e) => setAddress(e.target.value)} />
           </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Owner name">
-              <Input value={ownerName} onChange={(e) => setOwnerName(e.target.value)} />
-            </Field>
-            <Field label="Owner PIN (4–6 digits)" hint="Used to log in on this computer">
-              <Input value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))} type="password" inputMode="numeric" />
-            </Field>
-          </div>
-          <label className="flex items-center gap-2 text-sm text-slate-600">
-            <input type="checkbox" checked={demo} onChange={(e) => setDemo(e.target.checked)} />
-            Add sample products, customers and suppliers to try the software (you can delete them later)
-          </label>
           <Button
             size="lg"
             disabled={!valid}
             onClick={() =>
-              run(async () => {
-                await setupShop({ shopName: shopName.trim(), address, phone, ownerName: ownerName.trim(), pin, openingCash });
-                if (demo) await loadDemoData();
-              }, 'Shop is ready')
+              run(() => setupShop({ shopName: shopName.trim(), address, phone, openingCash }), 'Shop is ready')
             }
           >
-            Start using RetailOS
+            Start using Al Noor Mart
           </Button>
         </div>
+        <p className="mt-6 text-center text-xs font-medium text-slate-400">Powered by <a href="https://mirwal.pk" target="_blank" rel="noreferrer" className="text-emerald-800 hover:text-amber-700">mirwal.pk</a></p>
       </div>
     </div>
   );
